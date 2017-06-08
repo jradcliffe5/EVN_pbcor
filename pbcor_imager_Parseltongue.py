@@ -21,9 +21,9 @@ from time import gmtime, strftime, localtime
 ti = time.time()    # To time the script
 
 ## Inputs
-UVFITSFILESpath = '/scratch/users/radcliff/EG078B_pbcor/large_fits/'
+UVFITSFILESpath = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Scripts/FITS/UV/'
 TASAVfilespath = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/TASAV/'
-IMAGEFITSFILESout = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/IM/'
+IMAGEFITSFILESout = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Scripts/FITS/IM/'
 AIPS.userno = 10
 disk = 1
 

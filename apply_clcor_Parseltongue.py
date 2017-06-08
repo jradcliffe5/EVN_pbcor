@@ -2,12 +2,13 @@
 import AIPS
 from Wizardry.AIPSData import AIPSUVData as wizAIPSUVData
 from Wizardry.AIPSData import AIPSTableRow
+from AIPSTask import AIPSTask
 import sys, operator, pickle, os
 
 ## Inputs
-UVFITSFILESpath = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Scripts/MSSC_correct/UV/'
-IMAGEFITSFILESout = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Scripts/MSSC_correct/IM/'
-UVFITSFILESout = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Scripts/MSSC_correct/TASAV/'
+UVFITSFILESpath = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Scripts/FITS/UV/'
+IMAGEFITSFILESout = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Scripts/FITS/IM/'
+UVFITSFILESout = '/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Scripts/FITS/TASAV/'
 AIPS.userno = 10
 disk = 1
 

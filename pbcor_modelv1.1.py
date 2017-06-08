@@ -99,14 +99,15 @@ for i in range(len(telescopes)):
 RA= []
 DEC = []
 filenames = []
+path='/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/wrong_model_MSSC/Tapered_weights/'
 if os.path.exists('./EG078B.npy'):
     RA = np.load('./EG078B.npy')[1]
     DEC = np.load('./EG078B.npy')[2]
     filenames = np.load('./EG078B.npy')[0]
 else:
-    for file in os.listdir('./MSSC_correct/'):
+    for file in os.listdir(path):
         if file.endswith('.fits'):
-            hdu = fits.open('./MSSC_correct/'+file)
+            hdu = fits.open(path+file)
             print file
             #print 360+hdu[0].header['CRVAL1']
             RA.append(360+float(hdu[0].header['CRVAL1']))
