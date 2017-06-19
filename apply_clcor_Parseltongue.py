@@ -85,7 +85,7 @@ for file in os.listdir(UVFITSFILESpath):
                 fittp.indata = imagedata2
                 fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_NA_IM.fits'
                 fittp.go()
-                fittp.indata = AIPSUVData(file[:8]+'PB','TASAV',1,1)
+                fittp.indata = wizAIPSUVData(file[:8]+'PB','TASAV',1,1)
                 fittp.dataout = UVFITSFILESout+file[:8]+'_PBCOR_TASAV.fits'
                 fittp.go()
                 uvdata.zap()
@@ -93,4 +93,4 @@ for file in os.listdir(UVFITSFILESpath):
                 imagedata2.zap()
                 AIPSImage(file[:8]+'PB','IBM001',1,1).zap()
                 AIPSImage(file[:8]+'PB','IBM001',1,2).zap()
-        AIPSUVData(file[:8]+'PB','TASAV',1,1).zap()
+                wizAIPSUVData(file[:8]+'PB','TASAV',1,1).zap()
