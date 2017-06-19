@@ -56,14 +56,21 @@ def station_table():
 def generate_psf(phase_centers,telescope,model,scale): ##generate voltage beams!
     if model == 'gaussian':
         for i in range(len(phase_centers)): #gaussian of form
+            print telescope, station_HPBW(stations[telescope],frequency)*60
+            xstd= station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2)))*u.degree*(1/np.cos((phase_centers[i].dec.radian)))
+            ystd =station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2)))*u.degree
             if i == 0:
                 EF = models.Gaussian2D(amplitude=scale[i], \
-                x_mean=phase_centers[i].ra*u.degree,\
-                y_mean=phase_centers[i].dec*u.degree,\
-                x_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2))))*u.degree*(1/np.cos((phase_centers[i].dec.radian))),\
-                y_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2))))*u.degree,theta=0)
+                x_mean=phase_centers[i].ra.degree,\
+                y_mean=phase_centers[i].dec.degree,\
+                x_stddev=xstd,\
+                y_stddev=ystd, theta=0)
             else:
-                EF = EF + models.Gaussian2D(amplitude=scale[i], x_mean=phase_centers[i].ra*u.degree, y_mean=phase_centers[i].dec*u.degree, x_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(np.log(2))))*u.degree*(1/np.cos(phase_centers[i].dec.radian)),y_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(np.log(2))))*u.degree,theta=0)
+                EF = EF + models.Gaussian2D(amplitude=scale[i],\
+                x_mean=phase_centers[i].ra.degree, \
+                y_mean=phase_centers[i].dec.degree, \
+                x_stddev=xstd, \
+                y_stddev=ystd, theta=0)
     else:
         print 'Gaussians only please'
         sys.exit()
@@ -108,7 +115,7 @@ print c.dec*u.degree
 ## Set up beams as Gaussians for all positions
 stations = station_table()
 
-## Generate telescope single voltage patterns with sky projection included.
+## Generate telescope single power patterns with sky projection included.
 telescope_single_psf = {}
 for i in range(len(telescopes)):
     if telescopes[i] in outside_telescopes:
@@ -137,7 +144,7 @@ else:
             filenames.append(file[:8])
             np.save('EG078B.npy',[filenames,RA,DEC])
 
-## plot telescope_single_psfs
+## plot telescope_single_psfs power beams and non-power beams
 import pandas as pd
 detections = pd.read_csv('VLBI_Catalogue_v10.csv',delimiter='\t')
 detections = SkyCoord(detections.VLBI_RA,detections.VLBI_Dec,frame='icrs',unit=('hour','deg'))
@@ -146,14 +153,29 @@ for i in range(len(telescopes)):
     plot = telescope_single_psf[telescopes[i]]
     EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
     plt.figure(i,figsize=(8, 8))
-    plt.pcolormesh(x,y,plot(x,y)/np.max(plot(x,y)),cmap='magma',vmin=0.4,vmax=0.6)
+    plt.pcolormesh(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),cmap='magma',vmin=0.1,vmax=1)
+    plt.contour(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),levels=[0.5])
     #plt.colorbar()
     plt.scatter(detections.ra,detections.dec)
     plt.gca().invert_xaxis()
     plt.grid(color='w')
-    plt.savefig(telescopes[i]+'_single_primary_beam.png',bbox_inches='tight',)
+    plt.savefig(telescopes[i]+'_single_voltage_beam.png',bbox_inches='tight',)
     plt.close('all')
 
+for i in range(len(telescopes)):
+    x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+    plot = telescope_single_psf[telescopes[i]]
+    EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
+    plt.figure(i,figsize=(8, 8))
+    plt.pcolormesh(x,y,plot(x,y)/np.max(plot(x,y)),cmap='magma',vmin=0.1,vmax=1)
+    plt.contour(x,y,plot(x,y)/np.max(plot(x,y)),levels=[0.5])
+    #plt.colorbar()
+    plt.scatter(detections.ra,detections.dec)
+    plt.gca().invert_xaxis()
+    plt.grid(color='w')
+    plt.savefig(telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
+    plt.close('all')
+'''
 ## Generate voltage beam corrections for CLCOR
 EG078B_CLCOR_corr = []
 
@@ -164,13 +186,13 @@ for i in range(len(filenames)):
         single_psf_corr = single_psf_corr + [1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y)))]
         print telescopes[j]
         print 1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y)))
-    EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
+    EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],np.sqrt(single_psf_corr)]]
 
 os.system('rm CLCOR_params.pckl')
 f = open('CLCOR_params.pckl', 'wb')
 pickle.dump(EG078B_CLCOR_corr, f)
 f.close()
-
+'''
 '''
 ##Generate baseline pair voltage beams
 telescope_baseline_pairs = {}
