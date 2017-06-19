@@ -154,12 +154,12 @@ for i in range(len(telescopes)):
     EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
     plt.figure(i,figsize=(8, 8))
     plt.pcolormesh(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),cmap='magma',vmin=0.1,vmax=1)
-    plt.contour(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),levels=[0.5])
+    plt.contour(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),levels=[0.5],colors=('w'),linestyles=('-.'))
     #plt.colorbar()
     plt.scatter(detections.ra,detections.dec)
     plt.gca().invert_xaxis()
     plt.grid(color='w')
-    plt.savefig(telescopes[i]+'_single_voltage_beam.png',bbox_inches='tight',)
+    plt.savefig('PB_plots/'+telescopes[i]+'_single_voltage_beam.png',bbox_inches='tight',)
     plt.close('all')
 
 for i in range(len(telescopes)):
@@ -168,31 +168,33 @@ for i in range(len(telescopes)):
     EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
     plt.figure(i,figsize=(8, 8))
     plt.pcolormesh(x,y,plot(x,y)/np.max(plot(x,y)),cmap='magma',vmin=0.1,vmax=1)
-    plt.contour(x,y,plot(x,y)/np.max(plot(x,y)),levels=[0.5])
+    plt.contour(x,y,plot(x,y)/np.max(plot(x,y)),levels=[0.5],colors=('w'),linestyles=('-.'))
     #plt.colorbar()
     plt.scatter(detections.ra,detections.dec)
     plt.gca().invert_xaxis()
     plt.grid(color='w')
-    plt.savefig(telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
+    plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
     plt.close('all')
-'''
-## Generate voltage beam corrections for CLCOR
+
+## Generate voltage beam corrections for CLCOR by taking sqrt of power beam corrections
 EG078B_CLCOR_corr = []
 
+### Each filename need to grid the data and extract a value based upon the model
 for i in range(len(filenames)):
     single_psf_corr = []
+    print filenames[i]
     for j in range(len(telescopes)):
         x, y = np.mgrid[188.5:190:500j,61.9:62.6:500j]
-        single_psf_corr = single_psf_corr + [1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y)))]
-        print telescopes[j]
-        print 1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y)))
+        derived_corr_factor = [1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y)))]
+        single_psf_corr = single_psf_corr + derived_corr_factor
+        print telescopes[j], derived_corr_factor
     EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],np.sqrt(single_psf_corr)]]
 
 os.system('rm CLCOR_params.pckl')
 f = open('CLCOR_params.pckl', 'wb')
 pickle.dump(EG078B_CLCOR_corr, f)
 f.close()
-'''
+
 '''
 ##Generate baseline pair voltage beams
 telescope_baseline_pairs = {}
