@@ -60,8 +60,8 @@ def generate_psf(phase_centers,telescope,model,scale): ##generate voltage beams!
                 EF = models.Gaussian2D(amplitude=scale[i], \
                 x_mean=phase_centers[i].ra*u.degree,\
                 y_mean=phase_centers[i].dec*u.degree,\
-                x_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(np.log(2))))*u.degree*(1/np.cos((phase_centers[i].dec.radian))),\
-                y_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(np.log(2))))*u.degree,theta=0)
+                x_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2))))*u.degree*(1/np.cos((phase_centers[i].dec.radian))),\
+                y_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2))))*u.degree,theta=0)
             else:
                 EF = EF + models.Gaussian2D(amplitude=scale[i], x_mean=phase_centers[i].ra*u.degree, y_mean=phase_centers[i].dec*u.degree, x_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(np.log(2))))*u.degree*(1/np.cos(phase_centers[i].dec.radian)),y_stddev=(station_HPBW(stations[telescope],frequency)/(2*np.sqrt(np.log(2))))*u.degree,theta=0)
     else:
@@ -140,7 +140,6 @@ else:
 ## plot telescope_single_psfs
 import pandas as pd
 detections = pd.read_csv('VLBI_Catalogue_v10.csv',delimiter='\t')
-print detections.columns
 detections = SkyCoord(detections.VLBI_RA,detections.VLBI_Dec,frame='icrs',unit=('hour','deg'))
 for i in range(len(telescopes)):
     x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
