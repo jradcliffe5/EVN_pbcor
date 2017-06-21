@@ -97,7 +97,8 @@ telescopes = ['EFLSBERG','WSTRBORK','ROBLEDO','ONSALA60',"MEDICINA",'NOTO',"TORU
 outside_telescopes = ['EFLSBERG','JODRELL1']
 
 #### Path to fitsfiles to extract corrdinates in EG078.npy is not here
-path='/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/wrong_model_MSSC/Tapered_weights/'
+path='../../wrong_model_MSSC/Tapered_weights/'
+
 #######################
 ##-------------------##
 #######################
@@ -143,11 +144,11 @@ else:
             DEC.append(float(hdu[0].header['CRVAL2']))
             filenames.append(file[:8])
             np.save('EG078B.npy',[filenames,RA,DEC])
-
+'''
 ## plot telescope_single_psfs power beams and non-power beams
 import pandas as pd
-detections = pd.read_csv('VLBI_Catalogue_v10.csv',delimiter='\t')
-detections = SkyCoord(detections.VLBI_RA,detections.VLBI_Dec,frame='icrs',unit=('hour','deg'))
+#detections = pd.read_csv('VLBI_Catalogue_v10.csv',delimiter='\t')
+#detections = SkyCoord(detections.VLBI_RA,detections.VLBI_Dec,frame='icrs',unit=('hour','deg'))
 for i in range(len(telescopes)):
     x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
     plot = telescope_single_psf[telescopes[i]]
@@ -156,7 +157,7 @@ for i in range(len(telescopes)):
     plt.pcolormesh(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),cmap='magma',vmin=0.1,vmax=1)
     plt.contour(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),levels=[0.5],colors=('w'),linestyles=('-.'))
     #plt.colorbar()
-    plt.scatter(detections.ra,detections.dec)
+    #plt.scatter(detections.ra,detections.dec)
     plt.gca().invert_xaxis()
     plt.grid(color='w')
     plt.savefig('PB_plots/'+telescopes[i]+'_single_voltage_beam.png',bbox_inches='tight',)
@@ -170,12 +171,12 @@ for i in range(len(telescopes)):
     plt.pcolormesh(x,y,plot(x,y)/np.max(plot(x,y)),cmap='magma',vmin=0.1,vmax=1)
     plt.contour(x,y,plot(x,y)/np.max(plot(x,y)),levels=[0.5],colors=('w'),linestyles=('-.'))
     #plt.colorbar()
-    plt.scatter(detections.ra,detections.dec)
+    #plt.scatter(detections.ra,detections.dec)
     plt.gca().invert_xaxis()
     plt.grid(color='w')
     plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
     plt.close('all')
-
+'''
 ## Generate voltage beam corrections for CLCOR by taking sqrt of power beam corrections
 EG078B_CLCOR_corr = []
 
