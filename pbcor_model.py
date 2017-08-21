@@ -225,9 +225,10 @@ for j in range(len(multiple_pointing_names)):
         plt.grid(color='w')
         plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
         plt.close('all')
-
+'''
+'''
 ## Generate voltage beam corrections for CLCOR by taking sqrt of power beam corrections
-EG078B_CLCOR_corr = []
+x = []
 
 ### Each filename need to grid the data and extract a value based upon the model
 for i in range(len(filenames)):
@@ -236,17 +237,17 @@ for i in range(len(filenames)):
     for j in range(len(telescopes)):
         if telescopes[j] not in outside_telescopes:
             x, y = np.mgrid[188.5:190:500j,61.9:62.6:500j]
-            derived_corr_factor = [{AIPStelescope[j]:np.sqrt(1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y))))}]
-            single_psf_corr = single_psf_corr + derived_corr_factor
+            derived_corr_factor= {AIPStelescope[j]:np.sqrt(1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y))))}
+            single_psf_corr = single_psf_corr + [derived_corr_factor]
             print telescopes[j], derived_corr_factor
-        EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
+    x = x + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
 
 os.system('rm central_pointing_params.pckl')
 f = open('central_pointing_params.pckl', 'wb')
-pickle.dump(EG078B_CLCOR_corr, f)
+pickle.dump(x, f)
 f.close()
-
 '''
+
 ### Each filename need to grid the data and extract a value based upon the model
 def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,telescope_multiple_psf):
     EG078B_CLCOR_corr =[]
@@ -263,57 +264,10 @@ def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,
 
 x = {}
 for i in multiple_pointing_names:
-    x[i] = [multiple_pointings_params(filenames,outside_telescopes,i,RA,DEC,telescope_multiple_psf)]
+    x[i] = multiple_pointings_params(filenames,outside_telescopes,i,RA,DEC,telescope_multiple_psf)
 
 
 os.system('rm outside_pointing_params.pckl')
 f = open('outside_pointing_params.pckl', 'wb')
 pickle.dump(x, f)
 f.close()
-
-'''
-##Generate baseline pair voltage beams
-telescope_baseline_pairs = {}
-key = telescope_single_psf.keys()
-values = telescope_single_psf.values()
-
-for i in range(len(values)):
-    for j in range(len(values)):
-        if key[i] != key[j]:
-            if key[j]+key[i] not in telescope_baseline_pairs :
-                telescope_baseline_pairs[key[i]+key[j]] = values[i] * values[j]
-            else:
-                print key[i]+' baseline '+key[j]+' already calculated'
-        else:
-            print key[i]+' is the same as '+key[j]
-print telescope_baseline_pairs.keys()
-
-#combine baseline beams to form primary beam
-plot= []
-for i in range(len(telescope_baseline_pairs.values())):
-    if i == 0:
-        plot = telescope_baseline_pairs.values()[i]
-        print plot
-    else:
-        plot = plot+telescope_baseline_pairs.values()[i]
-
-
-## Plots for combining the arrays
-fig = plt.figure(1)
-x, y = np.mgrid[188.5:190:500j,61.9:62.6:500j]
-c1 = SkyCoord(RA,DEC,unit='deg',frame='icrs')
-plt.figure(1)
-plt.pcolormesh(x,y,plot(x,y)/np.max(plot(x,y)),cmap='magma',norm=LogNorm())
-plt.colorbar()
-plt.scatter(c1.ra,c1.dec)
-plt.gca().invert_xaxis()
-plt.show()
-
-## Pwer beam plot
-plt.figure(2)
-plt.pcolormesh(x,y,(plot(x,y)/np.max(plot(x,y)))**2,cmap='viridis')
-plt.colorbar()
-plt.scatter(c1.ra,c1.dec)
-plt.gca().invert_xaxis()
-plt.show()
-'''
