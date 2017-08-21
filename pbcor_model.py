@@ -61,20 +61,21 @@ def generate_psf(phase_centers,telescope,model,scale): ##generate voltage beams!
             ystd =station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2)))*u.degree
             if i == 0:
                 EF = models.Gaussian2D(amplitude=scale[i], \
-                x_mean=phase_centers[i].ra.degree,\
-                y_mean=phase_centers[i].dec.degree,\
-                x_stddev=xstd,\
-                y_stddev=ystd, theta=0)
+                                       x_mean=phase_centers[i].ra.degree,\
+                                       y_mean=phase_centers[i].dec.degree,\
+                                       x_stddev=xstd,\
+                                       y_stddev=ystd, theta=0)
             else:
                 EF = EF + models.Gaussian2D(amplitude=scale[i],\
-                x_mean=phase_centers[i].ra.degree, \
-                y_mean=phase_centers[i].dec.degree, \
-                x_stddev=xstd, \
-                y_stddev=ystd, theta=0)
+                                            x_mean=phase_centers[i].ra.degree, \
+                                            y_mean=phase_centers[i].dec.degree, \
+                                            x_stddev=xstd, \
+                                            y_stddev=ystd, theta=0)
     else:
         print 'Gaussians only please'
         sys.exit()
     return EF
+
 
 #######################
 ######## Inputs #######
@@ -83,7 +84,9 @@ def generate_psf(phase_centers,telescope,model,scale): ##generate voltage beams!
 ### Multiple pointings ###
 Positions1_RA = ['12h37m20s','12h36m20s','12h36m20s','12h37m20s','12h36m50s']
 Positions1_Dec = ['+62d16m28s','+62d16m28s','+62d09m28s','+62d09m28s','+62d12m58s']
-scales = [1,1,1,1,1/16] ## relative observing time propto sqrt(time_per_pointing)
+multiple_pointing_names = ['P1','P2','P3','P4','HDFN']
+outside_telescopes = ['EFLSBERG','JODRELL1']
+scales = [1,1,1,1,1] ## relative observing time propto sqrt(time_per_pointing)
 #--
 ### Central pointings ###
 Positions2_RA = ['12h36m50s']
@@ -92,11 +95,15 @@ Positions2_Dec = ['+62d12m58s']
 ### central frequency of observations
 frequency = 1.65849E9
 ### telescopes participating (in order of AIPS antenna table!)
-telescopes = ['EFLSBERG','WSTRBORK','ROBLEDO','ONSALA60',"MEDICINA",'NOTO',"TORUN",\
-              'SVETLOE',"BADARY","ZELENCHK","URUMQI","SHANGHAI","JODRELL1"]
+## Variable telescopes
+telescopes = ['EFLSBERG','WSTRBORK','ROBLEDO','ONSALA60','MEDICINA','NOTO','TORUN',\
+              'SVETLOE','BADARY','ZELENCHK','URUMQI','SHANGHAI','JODRELL1']
+AIPStelescope = [1,2,3,4,5,6,7,8,9,10,11,12,13]
 outside_telescopes = ['EFLSBERG','JODRELL1']
+outsideAIPStelescope = [1,13]
 
-#### Path to fitsfiles to extract corrdinates in EG078.npy is not here
+
+#### Path to fitsfiles to extract coordinates in EG078.npy is not here
 path='../../wrong_model_MSSC/Tapered_weights/'
 
 #######################
@@ -105,24 +112,32 @@ path='../../wrong_model_MSSC/Tapered_weights/'
 
 ## Generate skycoordinates of outside (c) and central (c1)
 # outside pointings
-c = SkyCoord(ra=Positions1_RA,\
-            dec=Positions1_Dec, frame = 'icrs',unit=('hour','deg'))
+c = {}
+for i in range(len(multiple_pointing_names)):
+    c[multiple_pointing_names[i]] = SkyCoord(ra=[Positions1_RA[i]],\
+                    dec=[Positions1_Dec[i]], frame ='icrs', unit=('hour','deg'))
+### Need to include lists as SkyCoord now has len ability, pretty stupid bug
+
 # central pointings
 c1 = SkyCoord(ra=Positions2_RA,dec=Positions2_Dec,frame ='icrs',unit=('hour','deg'))
-print c.ra*u.degree
-print c.dec*u.degree
-
 
 ## Set up beams as Gaussians for all positions
 stations = station_table()
 
 ## Generate telescope single power patterns with sky projection included.
 telescope_single_psf = {}
+telescope_multiple_psf = {}
+
+### Make dictionary for single pointing telescopes
 for i in range(len(telescopes)):
-    if telescopes[i] in outside_telescopes:
-        telescope_single_psf[telescopes[i]] = generate_psf(c,telescopes[i],'gaussian',scales)
-    else:
-        telescope_single_psf[telescopes[i]] = generate_psf(c1,telescopes[i],'gaussian',scales)
+    if telescopes[i] not in outside_telescopes:
+        telescope_single_psf[telescopes[i]] = generate_psf(c1,telescopes[i],'gaussian',[1])
+
+### Make dictionary for multiple pointings
+for i in range(len(multiple_pointing_names)):
+    telescope_multiple_psf[multiple_pointing_names[i]] = {} ### Need to initialise nested dictionary
+    for j in range(len(outside_telescopes)):
+        telescope_multiple_psf[multiple_pointing_names[i]][outside_telescopes[j]]= generate_psf(c[multiple_pointing_names[i]],outside_telescopes[j],'gaussian',[1])
 
 
 ## Set the positions of observations
@@ -145,38 +160,72 @@ else:
             filenames.append(file[:8])
             np.save('EG078B.npy',[filenames,RA,DEC])
 '''
+
 ## plot telescope_single_psfs power beams and non-power beams
 import pandas as pd
-#detections = pd.read_csv('VLBI_Catalogue_v10.csv',delimiter='\t')
-#detections = SkyCoord(detections.VLBI_RA,detections.VLBI_Dec,frame='icrs',unit=('hour','deg'))
-for i in range(len(telescopes)):
-    x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
-    plot = telescope_single_psf[telescopes[i]]
-    EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
-    plt.figure(i,figsize=(8, 8))
-    plt.pcolormesh(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),cmap='magma',vmin=0.1,vmax=1)
-    plt.contour(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),levels=[0.5],colors=('w'),linestyles=('-.'))
-    #plt.colorbar()
-    #plt.scatter(detections.ra,detections.dec)
-    plt.gca().invert_xaxis()
-    plt.grid(color='w')
-    plt.savefig('PB_plots/'+telescopes[i]+'_single_voltage_beam.png',bbox_inches='tight',)
-    plt.close('all')
 
+### First plot the telescopes on the central pointing
 for i in range(len(telescopes)):
-    x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
-    plot = telescope_single_psf[telescopes[i]]
-    EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
-    plt.figure(i,figsize=(8, 8))
-    plt.pcolormesh(x,y,plot(x,y)/np.max(plot(x,y)),cmap='magma',vmin=0.1,vmax=1)
-    plt.contour(x,y,plot(x,y)/np.max(plot(x,y)),levels=[0.5],colors=('w'),linestyles=('-.'))
-    #plt.colorbar()
-    #plt.scatter(detections.ra,detections.dec)
-    plt.gca().invert_xaxis()
-    plt.grid(color='w')
-    plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
-    plt.close('all')
-'''
+    if telescopes[i] not in outside_telescopes:
+        x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+        plot = telescope_single_psf[telescopes[i]]
+        EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
+        plt.figure(i,figsize=(8, 8))
+        plt.pcolormesh(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),cmap='magma',vmin=0.1,vmax=1)
+        plt.contour(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),levels=[0.5],colors=('w'),\
+        linestyles=('-.'))
+        #plt.colorbar()
+        #plt.scatter(detections.ra,detections.dec)
+        plt.gca().invert_xaxis()
+        plt.grid(color='w')
+        plt.savefig('PB_plots/'+telescopes[i]+'_single_voltage_beam.png',bbox_inches='tight',)
+        plt.close('all')
+for i in range(len(telescopes)):
+    if telescopes[i] not in outside_telescopes:
+        x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+        plot = telescope_single_psf[telescopes[i]]
+        EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
+        plt.figure(i,figsize=(8, 8))
+        plt.pcolormesh(x,y,plot(x,y)/np.max(plot(x,y)),cmap='magma',vmin=0.1,vmax=1)
+        plt.contour(x,y,plot(x,y)/np.max(plot(x,y)),levels=[0.5],colors=('w'),linestyles=('-.'))
+        #plt.colorbar()
+        #plt.scatter(detections.ra,detections.dec)
+        plt.gca().invert_xaxis()
+        plt.grid(color='w')
+        plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
+        plt.close('all')
+
+
+for j in range(len(multiple_pointing_names)):
+    for i in range(len(outside_telescopes)):
+        x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+        plot = telescope_multiple_psf[multiple_pointing_names[j]][outside_telescopes[i]]
+        EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
+        plt.figure(i,figsize=(8, 8))
+        plt.pcolormesh(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),cmap='magma',vmin=0.1,vmax=1)
+        plt.contour(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),levels=[0.5],colors=('w'),\
+        linestyles=('-.'))
+        #plt.colorbar()
+        #plt.scatter(detections.ra,detections.dec)
+        plt.gca().invert_xaxis()
+        plt.grid(color='w')
+        plt.savefig('PB_plots/%s_%s_single_voltage_beam.png' %  (multiple_pointing_names[j],outside_telescopes[i]),bbox_inches='tight',)
+        plt.close('all')
+for j in range(len(multiple_pointing_names)):
+    for i in range(len(outside_telescopes)):
+        x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+        plot = telescope_multiple_psf[multiple_pointing_names[j]][outside_telescopes[i]]
+        EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
+        plt.figure(i,figsize=(8, 8))
+        plt.pcolormesh(x,y,plot(x,y)/np.max(plot(x,y)),cmap='magma',vmin=0.1,vmax=1)
+        plt.contour(x,y,plot(x,y)/np.max(plot(x,y)),levels=[0.5],colors=('w'),linestyles=('-.'))
+        #plt.colorbar()
+        #plt.scatter(detections.ra,detections.dec)
+        plt.gca().invert_xaxis()
+        plt.grid(color='w')
+        plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
+        plt.close('all')
+
 ## Generate voltage beam corrections for CLCOR by taking sqrt of power beam corrections
 EG078B_CLCOR_corr = []
 
@@ -185,15 +234,41 @@ for i in range(len(filenames)):
     single_psf_corr = []
     print filenames[i]
     for j in range(len(telescopes)):
-        x, y = np.mgrid[188.5:190:500j,61.9:62.6:500j]
-        derived_corr_factor = [1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y)))]
-        single_psf_corr = single_psf_corr + derived_corr_factor
-        print telescopes[j], derived_corr_factor
-    EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],np.sqrt(single_psf_corr)]]
+        if telescopes[j] not in outside_telescopes:
+            x, y = np.mgrid[188.5:190:500j,61.9:62.6:500j]
+            derived_corr_factor = [{AIPStelescope[j]:np.sqrt(1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y))))}]
+            single_psf_corr = single_psf_corr + derived_corr_factor
+            print telescopes[j], derived_corr_factor
+        EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
 
-os.system('rm CLCOR_params.pckl')
-f = open('CLCOR_params.pckl', 'wb')
+os.system('rm central_pointing_params.pckl')
+f = open('central_pointing_params.pckl', 'wb')
 pickle.dump(EG078B_CLCOR_corr, f)
+f.close()
+
+'''
+### Each filename need to grid the data and extract a value based upon the model
+def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,telescope_multiple_psf):
+    EG078B_CLCOR_corr =[]
+    for i in range(len(filenames)): ### go through each phase center
+        single_psf_corr = []
+        print filenames[i]
+        for j in range(len(outside_telescopes)): ## go through each telescope
+            x, y = np.mgrid[188.5:190:500j,61.9:62.6:500j]
+            derived_corr_factor = [{outsideAIPStelescope[j]:np.sqrt(1/(telescope_multiple_psf[pointing_name][outside_telescopes[j]](RA[i],DEC[i])/np.max(telescope_multiple_psf[pointing_name][outside_telescopes[j]](x,y))))}]
+            single_psf_corr = single_psf_corr + derived_corr_factor
+            print outside_telescopes[j], derived_corr_factor
+        EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
+    return EG078B_CLCOR_corr
+
+x = {}
+for i in multiple_pointing_names:
+    x[i] = [multiple_pointings_params(filenames,outside_telescopes,i,RA,DEC,telescope_multiple_psf)]
+
+
+os.system('rm outside_pointing_params.pckl')
+f = open('outside_pointing_params.pckl', 'wb')
+pickle.dump(x, f)
 f.close()
 
 '''
