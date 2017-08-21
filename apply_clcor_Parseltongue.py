@@ -6,12 +6,13 @@ from AIPSTask import AIPSTask
 from AIPSData import  AIPSImage
 import sys, operator, pickle, os
 
-## Inputs
+## Inputs ##
 UVFITSFILESpath = '../UV/'
 IMAGEFITSFILESout = '../PBCOR_IM/'
 UVFITSFILESout = '../TASAV/'
 AIPS.userno = 10
 disk = 1
+#############
 
 def get_tab(uvdata, table):
 	# find the number of tables of a certain type
@@ -22,18 +23,27 @@ def get_tab(uvdata, table):
 	print "HIGHEST TABLE OF TYPE", table, "is", ver
 	return ver
 
-CLCOR_params = pickle.load(open("CLCOR_params.pckl", "rb" )) ## pickle file made by primary beam sim
+def input_files(pickle_file)
+	params = pickle.load(open("%s" % pickle_file, "rb" )) ## pickle file made by primary beam sim
+	text = open('%s.txt' % pickle_file,'w')
+	text.close()
+	return params
 
-text = open('CLCOR_params.txt','w')
-text.close()
+central_pointing_params = input_files('central_pointing_params.pckl')
+outside_pointing_params = input_files('outside_pointing_params.pckl')
 
-print os.listdir(UVFITSFILESpath)
+########### Firstly get a list of all the UV data files to derive corrections for
 for file in os.listdir(UVFITSFILESpath):
+	####### Check if each of these files end in .UV... just out of courtesy
     if file.endswith('.UV'):
-        for i in range(len(CLCOR_params)):
-            if CLCOR_params[i][0] == file[:8]:
+		### Now need to firstly correct for the central pointing
+        for i in range(len(central_pointing_params)):
+            if central_pointing_params[i][0] == file[:8]:
+				### Slice the correction factors based upon source name
+				correction_factor = central_pointing_params[i]
                 print 'Correcting %s' % file[:8]
-                print 'Correction factors: %s' % CLCOR_params[i][3]
+
+				### Load the data into an AIPS directory
                 fitld = AIPSTask('FITLD')
                 fitld.datain = UVFITSFILESpath+file
                 fitld.digicor = -1
@@ -41,26 +51,31 @@ for file in os.listdir(UVFITSFILESpath):
                 fitld.outclass = 'UVDATA'
                 fitld.go()
                 uvdata = wizAIPSUVData(file[:8],'UVDATA',disk,1)
-                for j in range(len(CLCOR_params[i][3])):
+
+				### Apply the corrections to the data
+				i = 0
+                for j in correction_factor.keys():
+					i = i + 1
                     clcor = AIPSTask('CLCOR')
                     clcor.indata = uvdata
                     clcor.sources[1] ='*'
-                    clcor.antennas[1] = j+1
+                    clcor.antennas[1] = j
                     clcor.opcode = 'GAIN'
-                    clcor.clcorprm[1] = float(CLCOR_params[i][3][j])
+                    clcor.clcorprm[1] = float(correction_factor[j])
                     clcor.gainver = get_tab(uvdata,'CL')
-                    if j == 0:
+                    if i == 1:
                         clcor.gainuse = get_tab(uvdata,'CL') + 1
                     else:
                         clcor.gainuse = get_tab(uvdata,'CL')
                     clcor.go()
-		f = open('CLCOR_params.txt','a')
-		f.write(str(CLCOR_params[i][0])+' '+str(CLCOR_params[i][3])+'\n')
-		f.close()
-		tasav = AIPSTask('TASAV')
-		tasav.indata = uvdata
-		tasav.outname = file[:8] + 'PB'
-		tasav.go()
+                f = open('central_pointing_params.pckl.txt','a')
+                f.write(str(correction_factor[0])+' '+str(correction_factor[3])+'\n')
+                f.close()
+				'''
+                tasav = AIPSTask('TASAV')
+                tasav.indata = uvdata
+                tasav.outname = file[:8] + 'PB'
+                tasav.go()
                 imagr = AIPSTask('IMAGR')
                 imagr.indata = uvdata
                 imagr.docalib=2
@@ -94,3 +109,4 @@ for file in os.listdir(UVFITSFILESpath):
                 AIPSImage(file[:8]+'PB','IBM001',1,1).zap()
                 AIPSImage(file[:8]+'PB','IBM001',1,2).zap()
                 wizAIPSUVData(file[:8]+'PB','TASAV',1,1).zap()
+				'''
