@@ -53,20 +53,20 @@ def station_table():
   stations["GBT_VLBA"] = 100. / 1.05
   return stations
 
-def generate_psf(phase_centers,telescope,model,scale): ##generate voltage beams!
+def generate_psf(phase_centers,telescope,model): ##generate voltage beams!
     if model == 'gaussian':
         for i in range(len(phase_centers)): #gaussian of form
             print telescope, station_HPBW(stations[telescope],frequency)*60
             xstd= station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2)))*u.degree*(1/np.cos((phase_centers[i].dec.radian)))
             ystd =station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2)))*u.degree
             if i == 0:
-                EF = models.Gaussian2D(amplitude=scale[i], \
+                EF = models.Gaussian2D(amplitude=1, \
                                        x_mean=phase_centers[i].ra.degree,\
                                        y_mean=phase_centers[i].dec.degree,\
                                        x_stddev=xstd,\
                                        y_stddev=ystd, theta=0)
             else:
-                EF = EF + models.Gaussian2D(amplitude=scale[i],\
+                EF = EF + models.Gaussian2D(amplitude=1,\
                                             x_mean=phase_centers[i].ra.degree, \
                                             y_mean=phase_centers[i].dec.degree, \
                                             x_stddev=xstd, \
@@ -85,7 +85,7 @@ def generate_psf(phase_centers,telescope,model,scale): ##generate voltage beams!
 Positions1_RA = ['12h37m20s','12h36m20s','12h36m20s','12h37m20s','12h36m50s']
 Positions1_Dec = ['+62d16m28s','+62d16m28s','+62d09m28s','+62d09m28s','+62d12m58s']
 multiple_pointing_names = ['P1','P2','P3','P4','HDFN']
-outside_telescopes = ['EFLSBERG','JODRELL1']
+
 scales = [1,1,1,1,1] ## relative observing time propto sqrt(time_per_pointing)
 #--
 ### Central pointings ###
@@ -143,7 +143,7 @@ telescope_multiple_psf = {}
 ### Make dictionary for single pointing telescopes
 for i in range(len(telescopes)):
     if telescopes[i] not in outside_telescopes:
-        telescope_single_psf[telescopes[i]] = generate_psf(c1,telescopes[i],'gaussian',[1])
+        telescope_single_psf[telescopes[i]] = generate_psf(c1,telescopes[i],'gaussian')
 
 print 'GENERATING TELSCOPE POWER BEAMS (MULTIPLE POINTINGS)'
 
@@ -151,7 +151,7 @@ print 'GENERATING TELSCOPE POWER BEAMS (MULTIPLE POINTINGS)'
 for i in range(len(multiple_pointing_names)):
     telescope_multiple_psf[multiple_pointing_names[i]] = {} ### Need to initialise nested dictionary
     for j in range(len(outside_telescopes)):
-        telescope_multiple_psf[multiple_pointing_names[i]][outside_telescopes[j]]= generate_psf(c[multiple_pointing_names[i]],outside_telescopes[j],'gaussian',[1])
+        telescope_multiple_psf[multiple_pointing_names[i]][outside_telescopes[j]]= generate_psf(c[multiple_pointing_names[i]],outside_telescopes[j],'gaussian')
 
 print 'GENERATING PHASE CENTRE POSITIONS'
 ## Set the positions of observations
@@ -240,7 +240,7 @@ for j in range(len(multiple_pointing_names)):
         #plt.scatter(detections.ra,detections.dec)
         plt.gca().invert_xaxis()
         plt.grid(color='w')
-        plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
+        plt.savefig('PB_plots/%s_%s_single_power_beam.png' %  (multiple_pointing_names[j],outside_telescopes[i]),bbox_inches='tight',)
         plt.close('all')
 
 
