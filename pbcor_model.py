@@ -154,12 +154,11 @@ else:
         if file.endswith('.fits'):
             hdu = fits.open(path+file)
             print file
-            #print 360+hdu[0].header['CRVAL1']
             RA.append(360+float(hdu[0].header['CRVAL1']))
             DEC.append(float(hdu[0].header['CRVAL2']))
             filenames.append(file[:8])
             np.save('EG078B.npy',[filenames,RA,DEC])
-'''
+
 
 ## plot telescope_single_psfs power beams and non-power beams
 import pandas as pd
@@ -225,8 +224,8 @@ for j in range(len(multiple_pointing_names)):
         plt.grid(color='w')
         plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
         plt.close('all')
-'''
-'''
+
+
 ## Generate voltage beam corrections for CLCOR by taking sqrt of power beam corrections
 x = []
 
@@ -246,7 +245,7 @@ os.system('rm central_pointing_params.pckl')
 f = open('central_pointing_params.pckl', 'wb')
 pickle.dump(x, f)
 f.close()
-'''
+
 
 ### Each filename need to grid the data and extract a value based upon the model
 def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,telescope_multiple_psf):
