@@ -102,6 +102,15 @@ AIPStelescope = [1,2,3,4,5,6,7,8,9,10,11,12,13]
 outside_telescopes = ['EFLSBERG','JODRELL1']
 outsideAIPStelescope = [1,13]
 
+### Densities
+plot_density = 500j  ## Normally don't have to change this but is sampling of the plot for gridding
+pbcor_density = 500j ## Sampling for the pbcor density, set to higher values if you have large FoV
+## or rapidly changing PB. Normally ok to set to this value or lower
+
+### PBCOR limits
+## Set limits of the pbcor to be evaluated across. Will be automatic in future updates.
+RA_lim = [188.3,190.3]
+DEC_lim = [61.7,62.7]
 
 #### Path to fitsfiles to extract coordinates in EG078.npy is not here
 path='/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/wrong_model_MSSC/Tapered_weights/'
@@ -110,7 +119,7 @@ path='/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/wrong_model_MSSC/T
 #######################
 ##-------------------##
 #######################
-
+print 'GENERATING SKYCOORDINATES OF POINTINGS'
 ## Generate skycoordinates of outside (c) and central (c1)
 # outside pointings
 c = {}
@@ -122,9 +131,11 @@ for i in range(len(multiple_pointing_names)):
 # central pointings
 c1 = SkyCoord(ra=Positions2_RA,dec=Positions2_Dec,frame ='icrs',unit=('hour','deg'))
 
+print 'SET UP STATIONS'
 ## Set up beams as Gaussians for all positions
 stations = station_table()
 
+print 'GENERATING TELSCOPE POWER BEAMS (SINGLE POINTING)'
 ## Generate telescope single power patterns with sky projection included.
 telescope_single_psf = {}
 telescope_multiple_psf = {}
@@ -134,23 +145,29 @@ for i in range(len(telescopes)):
     if telescopes[i] not in outside_telescopes:
         telescope_single_psf[telescopes[i]] = generate_psf(c1,telescopes[i],'gaussian',[1])
 
+print 'GENERATING TELSCOPE POWER BEAMS (MULTIPLE POINTINGS)'
+
 ### Make dictionary for multiple pointings
 for i in range(len(multiple_pointing_names)):
     telescope_multiple_psf[multiple_pointing_names[i]] = {} ### Need to initialise nested dictionary
     for j in range(len(outside_telescopes)):
         telescope_multiple_psf[multiple_pointing_names[i]][outside_telescopes[j]]= generate_psf(c[multiple_pointing_names[i]],outside_telescopes[j],'gaussian',[1])
 
-
+print 'GENERATING PHASE CENTRE POSITIONS'
 ## Set the positions of observations
 RA= []
 DEC = []
 filenames = []
 
-if os.path.exists('./EG078B.npy'):
-    RA = np.load('./EG078B.npy')[1]
-    DEC = np.load('./EG078B.npy')[2]
-    filenames = np.load('./EG078B.npy')[0]
+if os.path.exists('./pbcor.npy'):
+    print 'pbcor.npy has been found, extracting RA, Dec and sourcenames'
+    print 'if you have more phase centres to add, delete this and rerun'
+    print 'remember to set the path in the inputs'
+    RA = np.load('./pbcor.npy')[1]
+    DEC = np.load('./pbcor.npy')[2]
+    filenames = np.load('./pbcor.npy')[0]
 else:
+    print 'pbcor.npy not found, RA, DEC, and filenames extracted from %s' % path
     for file in os.listdir(path):
         if file.endswith('.fits'):
             hdu = fits.open(path+file)
@@ -158,16 +175,16 @@ else:
             RA.append(360+float(hdu[0].header['CRVAL1']))
             DEC.append(float(hdu[0].header['CRVAL2']))
             filenames.append(file[:8])
-            np.save('EG078B.npy',[filenames,RA,DEC])
+            np.save('pbcor.npy',[filenames,RA,DEC])
 
 
 ## plot telescope_single_psfs power beams and non-power beams
-import pandas as pd
 
 ### First plot the telescopes on the central pointing
+print 'PLOTTING THE PRIMARY BEAMS OF TELESCOPES ON SINGLE POINTING'
 for i in range(len(telescopes)):
     if telescopes[i] not in outside_telescopes:
-        x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+        x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
         plot = telescope_single_psf[telescopes[i]]
         EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
         plt.figure(i,figsize=(8, 8))
@@ -182,7 +199,7 @@ for i in range(len(telescopes)):
         plt.close('all')
 for i in range(len(telescopes)):
     if telescopes[i] not in outside_telescopes:
-        x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+        x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
         plot = telescope_single_psf[telescopes[i]]
         EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
         plt.figure(i,figsize=(8, 8))
@@ -195,10 +212,10 @@ for i in range(len(telescopes)):
         plt.savefig('PB_plots/'+telescopes[i]+'_single_power_beam.png',bbox_inches='tight',)
         plt.close('all')
 
-
+print 'PLOTTING THE PRIMARY BEAMS OF TELESCOPES ON MULTIPLE POINTING'
 for j in range(len(multiple_pointing_names)):
     for i in range(len(outside_telescopes)):
-        x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+        x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
         plot = telescope_multiple_psf[multiple_pointing_names[j]][outside_telescopes[i]]
         EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
         plt.figure(i,figsize=(8, 8))
@@ -213,7 +230,7 @@ for j in range(len(multiple_pointing_names)):
         plt.close('all')
 for j in range(len(multiple_pointing_names)):
     for i in range(len(outside_telescopes)):
-        x, y = np.mgrid[188.3:190.3:500j,61.7:62.7:500j]
+        x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
         plot = telescope_multiple_psf[multiple_pointing_names[j]][outside_telescopes[i]]
         EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
         plt.figure(i,figsize=(8, 8))
@@ -227,8 +244,9 @@ for j in range(len(multiple_pointing_names)):
         plt.close('all')
 
 
+print 'GRIDDING THE PRIMARY BEAMS TO EXTRACT VALUES FOR CORRECTIONS'
 ## Generate voltage beam corrections for CLCOR by taking sqrt of power beam corrections
-x = []
+corr_params = []
 
 ### Each filename need to grid the data and extract a value based upon the model
 for i in range(len(filenames)):
@@ -236,26 +254,26 @@ for i in range(len(filenames)):
     print filenames[i]
     for j in range(len(telescopes)):
         if telescopes[j] not in outside_telescopes:
-            x, y = np.mgrid[188.5:190:500j,61.9:62.6:500j]
+            x, y = np.mgrid[RA_lim[0]:RA_lim[1]:pbcor_density,DEC_lim[0]:DEC_lim[1]:pbcor_density] ## Need to add dependencies for sky area
             derived_corr_factor= {AIPStelescope[j]:np.sqrt(1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y))))}
             single_psf_corr = single_psf_corr + [derived_corr_factor]
             print telescopes[j], derived_corr_factor
-    x = x + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
+    corr_params = corr_params + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
 
 os.system('rm central_pointing_params.pckl')
 f = open('central_pointing_params.pckl', 'wb')
-pickle.dump(x, f)
+pickle.dump(corr_params, f)
 f.close()
 
 
 ### Each filename need to grid the data and extract a value based upon the model
-def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,telescope_multiple_psf):
+def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,telescope_multiple_psf,pbcor_density,RA_lim,DEC_lim):
     EG078B_CLCOR_corr =[]
     for i in range(len(filenames)): ### go through each phase center
         single_psf_corr = []
         print filenames[i]
         for j in range(len(outside_telescopes)): ## go through each telescope
-            x, y = np.mgrid[188.5:190:500j,61.9:62.6:500j]
+            x, y = np.mgrid[RA_lim[0]:RA_lim[1]:pbcor_density,DEC_lim[0]:DEC_lim[1]:pbcor_density]
             derived_corr_factor = [{outsideAIPStelescope[j]:np.sqrt(1/(telescope_multiple_psf[pointing_name][outside_telescopes[j]](RA[i],DEC[i])/np.max(telescope_multiple_psf[pointing_name][outside_telescopes[j]](x,y))))}]
             single_psf_corr = single_psf_corr + derived_corr_factor
             print outside_telescopes[j], derived_corr_factor
@@ -264,10 +282,13 @@ def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,
 
 x = {}
 for i in multiple_pointing_names:
-    x[i] = multiple_pointings_params(filenames,outside_telescopes,i,RA,DEC,telescope_multiple_psf)
+    x[i] = multiple_pointings_params(filenames,outside_telescopes,i,RA,DEC,telescope_multiple_psf,\
+    pbcor_density,RA_lim,DEC_lim)
 
 
 os.system('rm outside_pointing_params.pckl')
 f = open('outside_pointing_params.pckl', 'wb')
 pickle.dump(x, f)
 f.close()
+print 'COMPLETE'
+print 'SHOULD FIND PICKLE FILES FOR USE WITH apply_clcor_Parseltongue.py'
