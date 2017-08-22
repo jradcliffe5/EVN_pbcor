@@ -104,7 +104,8 @@ outsideAIPStelescope = [1,13]
 
 
 #### Path to fitsfiles to extract coordinates in EG078.npy is not here
-path='../../wrong_model_MSSC/Tapered_weights/'
+path='/net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/wrong_model_MSSC/Tapered_weights/'
+
 
 #######################
 ##-------------------##
