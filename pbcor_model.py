@@ -104,7 +104,7 @@ outsideAIPStelescope = [1,13]
 
 ### Densities
 plot_density = 500j  ## Normally don't have to change this but is sampling of the plot for gridding
-pbcor_density = 500j ## Sampling for the pbcor density, set to higher values if you have large FoV
+pbcor_density = 1500j ## Sampling for the pbcor density, set to higher values if you have large FoV
 ## or rapidly changing PB. Normally ok to set to this value or lower
 
 ### PBCOR limits
