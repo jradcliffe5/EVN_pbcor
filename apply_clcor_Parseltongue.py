@@ -10,14 +10,14 @@ import sys, operator, pickle, os
 UVFITSFILESpath = './'
 IMAGEFITSFILESout = './'
 UVFITSFILESout = './'
-FLAGFILESin = './'
+FLAGFILESin = './flag_tables/'
 AIPS.userno = 10
 disk = 1
 pointing_names = ['HDFN','P1','P2','P3','P4']
 #############
 
-def parse_flag_times(flagfile):
-	file=open(flagfile,'r')
+def parse_flag_times(flagfile,FLAGFILESin):
+	file=open(FLAGFILESin+flagfile,'r')
 	row = file.readlines()
 	dict_return = {}
 	times = []
@@ -58,10 +58,10 @@ outside_pointing_params = input_files('outside_pointing_params.pckl')
 ### The !! in the file is needed to match with the name of the pointing centers
 ### It creates a dictionary that can get a list of timeranges using timerange[pointing name]
 timerange = {}
-for file in os.listdir('./'):
+for file in os.listdir(FLAGFILESin):
 	for i in pointing_names:
 		if i in file:
-			timerange.update(parse_flag_times(file))
+			timerange.update(parse_flag_times(file,FLAGFILESin))
 ###################################################################
 
 
