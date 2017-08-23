@@ -109,7 +109,7 @@ for file in os.listdir(UVFITSFILESpath):
 				f = open('central_pointing_params.pckl.txt','a')
 				f.write(str(correction_factor[0])+' '+str(correction_factor[3])+'\n')
 				f.close()
-				
+
 				### Now apply the corrections to the other telescopes
 		for pointing in outside_pointing_params.keys():
 			for i in range(len(outside_pointing_params[pointing])):
