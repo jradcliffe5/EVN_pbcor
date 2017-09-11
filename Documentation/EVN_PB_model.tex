@@ -23,6 +23,7 @@
 \usepackage{listings}
 \usepackage{subfloat}
 \usepackage{subcaption}
+\usepackage{amsmath}
 \lstset{
 	numbers=left, 
 	numberstyle=\small, 
@@ -122,21 +123,51 @@ This is the documentation for the primary beam model for the EVN developed by Ja
 Each phase centre is primary beam corrected by following similar steps to Cao+2014. Due to the lack of accurate primary beam models for many EVN telescopes, the primary beam power response of each telescope were approximated by using a normalized, symmetric, 2D Gaussian of the form,
 
 \begin{equation}
-P(\theta, \phi) \approx \exp\left({\frac{(\theta- \theta_0)^2 + (\phi - \phi_0)^{2}}{2\sigma^2}}\right),
+P(\theta, \phi) \approx \exp\left({-\frac{(\theta- \theta_0)^2 + (\phi - \phi_0)^{2}}{2\sigma^2}}\right),
 \end{equation}
 
 \noindent where $P(\theta,\phi)$ is the relative power response. $\theta$ and $\phi$ are the respective azimuthal and polar angular distances from the antennas' pointing centers. The azimuthal and polar coordinates of the telescope's pointing centers are defined by $\theta_0$ and $\phi_0$ respectively. The standard deviation, $\sigma$, can be related to the FWHM of the primary beam, $\theta_{1/2}$, through the expression,
 
 \begin{equation}
-\sigma^2 = \frac{\theta_{1/2}^2}{8\ln{2}},
+\sigma^2 = \frac{\theta_{1/2}^2}{8\ln{2}}, \label{PB_sigma}
 \end{equation} 
 
 \noindent where the FWHM of the primary beam is defined as,
 \begin{equation}
-\theta_{1/2} = K\frac{\lambda_{\mathrm{c}}}{D_{\mathrm{eff}}}.
+\theta_{1/2} = K\frac{\lambda_{\mathrm{c}}}{D_{\mathrm{eff}}}. \label{correction_factors}
 \end{equation}
 
-\noindent Here, $\lambda_{\mathrm{c}}$, is the central wavelength of the observation and $D_{\mathrm{eff}}$ is the effective aperture diameter that takes into account any tapering of the telescope (Keimpema 2015, priv. comm.). The effective aperture diameters in use are shown in Table~\ref{table:telescopes}. A small correction factor, $K = 1.05$, is used to take into account any aperture blockages (Wrigley et al., in prep.). $P(\theta, \phi)$ was derived for each telescope at the centre of every phase centre. These correction factors are then applied using AIPS task \texttt{CLCOR}, where the gain amplitudes for each antenna were multiplied by the correction factors, $P(\theta, \phi)^{-1/2}$, of the two telescopes that form the baseline.
+Primary beam correction uses 2D Gaussian model to estimate the beam shapes. \texttt{pbcor\_model.py} will take the inputs specified in this file and and uses \texttt{astropy.modeling} 2D Gaussians to model the primary beam shape. The astropy model used is of the form: 
+\begin{equation}
+f(x,y)  = A\exp(-a(x-x_0)^2-b(x-x_0)(y-y_0)-c(y-y_0)^2) \label{astropy_model}
+\end{equation}
+where: 
+\begin{align}
+a & = \left(\frac{\cos^2(\theta)}{2\sigma_x^2} + \frac{\sin^2(\theta)}{2\sigma_y^2}\right) \\
+b & = \left(\frac{\sin(2\theta)}{2\sigma_x^2} + \frac{\sin(2\theta)}{2\sigma_y^2}\right) \\
+c & = \left(\frac{\sin^2(\theta)}{2\sigma_x^2} + \frac{\cos^2(\theta)}{2\sigma_y^2}\right)
+\end{align}
+
+\noindent where $\theta$ is the rotation angle in radians. We assume that the primary beam model is circularly symmetric (a zeroth order approximation in the absence of primary beam models), therefore $\theta \to 0$, $\sin^2(\theta) \to 0$, $\cos^2(\theta) \to 1$ and $b\to 0$. Therefore Eqn~\ref{astropy_model} reduces to:
+
+\begin{equation}
+f(x,y)  = A\exp\left(-\frac{(x-x_0)^2}{2\sigma_x^2}-\frac{(y-y_0)^2}{2\sigma_y^2}\right) \label{astropy_model_symmetric}
+\end{equation}
+
+If we assume that the $x$ direction corresponds to that of Right Ascension and $y$ direction to Declination, we need to take into account that we require the angular offset from the pointing centre therefore:
+
+\begin{align}
+\sigma_{\rm RA} & = \sigma_x(1/\cos(\rm Dec)) \label{RA_corr}\\
+\sigma_{\rm Dec} & = \sigma_y \label{Dec_corr}
+\end{align}
+
+If we then combine Eqns. \ref{correction_factors}, \ref{PB_sigma}, \ref{RA_corr} and \ref{Dec_corr}, we end up with expressions for the standard deviation as:
+\begin{align}
+\sigma_{\rm Dec} & = (1/\cos({\rm Dec}))\frac{\theta_{1/2}}{(2\sqrt{2\log(2)})} \\
+\sigma_{\rm RA} & = \frac{\theta_{1/2}}{(2\sqrt{2\log(2)})}
+\end{align}
+
+ The effective aperture diameters in use are shown in Table~\ref{table:telescopes}. A small correction factor, $K = 1.05$, is used to take into account any aperture blockages (Wrigley et al., in prep.). $P(\theta, \phi)$ was derived for each telescope at the centre of every phase centre. These correction factors are then applied using AIPS task \texttt{CLCOR}, where the gain amplitudes for each antenna were multiplied by the correction factors, $P(\theta, \phi)^{-1/2}$, of the two telescopes that form the baseline.
 
 \begin{table}
 	\centering  
