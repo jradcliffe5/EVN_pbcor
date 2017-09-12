@@ -28,29 +28,29 @@ def station_table():
   stations = {}
   # Effective aperture size in meters for each station, currently only L band
   stations["ARECIBO"] = 206 # Effective, physical diameter = 305
-  stations["BADARY"] = 32 / 1.15
-  stations["CAMBG32M"] = 32 / 1.15
+  stations["BADARY"] = 32 / 1.40
+  stations["CAMBG32M"] = 32 / 1.40
   stations["EFLSBERG"] = 78 # 100
-  stations["HART"] = 26/1.05
-  stations["IRBENE"] = 30 / 1.05
+  stations["HART"] = 26/1.40
+  stations["IRBENE"] = 30 / 1.40
   stations["JODRELL1"] = 67. #67 original value # 76
-  stations["JODRELL2"] = 25/1.15
-  stations["KUNMING"] = 40/1.05
+  stations["JODRELL2"] = 25/1.40
+  stations["KUNMING"] = 40/1.40
   stations["MEDICINA"] = 25 #32/1.05
-  stations["METSAHOV"] = 14/1.05
-  stations["NOTO"] = 32 / 1.15
-  stations["ONSALA60"] = 20/1.15
-  stations["ONSALA85"] = 25/1.15
+  stations["METSAHOV"] = 14/1.40
+  stations["NOTO"] = 32 / 1.40
+  stations["ONSALA60"] = 20/1.40
+  stations["ONSALA85"] = 25/1.40
   stations["ONS_DBBC"] = stations["ONSALA85"]
-  stations["ROBLEDO"] = 70/1.15
+  stations["ROBLEDO"] = 70/1.40
   stations["SHANGHAI"] = 22.5 # 25
-  stations["SVETLOE"] = 32/1.15
-  stations["TORUN"] = 32/1.05
-  stations["URUMQI"] = 25/1.15
-  stations["WSTRBORK"] = 25 / 1.15
-  stations["YEBES40M"] = 40 / 1.05
-  stations["ZELENCHK"] = 32 / 1.05
-  stations["GBT_VLBA"] = 100. / 1.05
+  stations["SVETLOE"] = 32/1.40
+  stations["TORUN"] = 32/1.40
+  stations["URUMQI"] = 25/1.40
+  stations["WSTRBORK"] = 25 / 1.40
+  stations["YEBES40M"] = 40 / 1.40
+  stations["ZELENCHK"] = 32 / 1.40
+  stations["GBT_VLBA"] = 100. / 1.40
   return stations
 
 def generate_psf(phase_centers,telescope,model): ##generate voltage beams!

@@ -7,12 +7,14 @@ from AIPSData import  AIPSImage
 import sys, operator, pickle, os
 
 ## Inputs ##
-UVFITSFILESpath = './'
+UVFITSFILESpath = './UV/'
+UVFLAGFILESpath = '../../../remove_antennas/central_fields/TASAV/'
 IMAGEFITSFILESout = './'
 UVFITSFILESout = './'
 FLAGFILESin = './flag_tables/'
 AIPS.userno = 9
 disk = 1
+apply_flags = True ## for flagging of multiple pointings
 pointing_names = ['HDFN','P1','P2','P3','P4']
 #############
 
@@ -52,7 +54,6 @@ def input_files(pickle_file):
 #### These are the correction factors
 central_pointing_params = input_files('central_pointing_params.pckl')
 outside_pointing_params = input_files('outside_pointing_params.pckl')
-
 ###################################################################
 ### This function parses the timeranges from the user made fits files
 ### The !! in the file is needed to match with the name of the pointing centers
@@ -64,17 +65,22 @@ for file in os.listdir(FLAGFILESin):
 			timerange.update(parse_flag_times(file,FLAGFILESin))
 ###################################################################
 
-
+PB_out = False
+PB_cen = False
 ########### Firstly get a list of all the UV data files to derive corrections for
 for file in os.listdir(UVFITSFILESpath):
 	####### Check if each of these files end in .UV... just out of courtesy
-    if file.endswith('.UV'):
+	print file
+	if (file.endswith('.UV')) and (len([s for s in os.listdir('./') if file[:8] in s]) == 0):
+	####### Check if each of these files end in .UV... just out of courtesy
+		#[s for s in os.listdir(UVFITSFILESpath) if file[:8] in s]
+		#print file
 		### Now need to firstly correct for the central pointing
-
-		for i in range(len(central_pointing_params)):
-			if central_pointing_params[i][0] == file[:8]:
+		for l in range(len(central_pointing_params)):
+			if central_pointing_params[l][0] == file[:8]:
 				### Slice the correction factors based upon source name
-				correction_factor = central_pointing_params[i]
+				PB_cen = True ## Checks for pb corrections
+				correction_factor = central_pointing_params[l]
 				print correction_factor
 				print 'Correcting %s' % file[:8]
 
@@ -85,9 +91,7 @@ for file in os.listdir(UVFITSFILESpath):
 				fitld.outname = file[:8]
 				fitld.outclass = 'UVDATA'
 				fitld.go()
-
 				uvdata = wizAIPSUVData(file[:8],'UVDATA',disk,1)
-
 				### Apply the corrections for the central telescopes
 				i = 0
 				for j in range(len(correction_factor[3])):
@@ -109,17 +113,14 @@ for file in os.listdir(UVFITSFILESpath):
 				f = open('central_pointing_params.pckl.txt','a')
 				f.write(str(correction_factor[0])+' '+str(correction_factor[3])+'\n')
 				f.close()
-
 				### Now apply the corrections to the other telescopes
 		for pointing in outside_pointing_params.keys():
-			for i in range(len(outside_pointing_params[pointing])):
-				if outside_pointing_params[pointing][i][0] == file[:8]:
+			for l in range(len(outside_pointing_params[pointing])):
+				if outside_pointing_params[pointing][l][0] == file[:8]:
+					PB_out = True ## Checks for pb correction
 					### Slice the correction factors based upon source name
-					correction_factor = outside_pointing_params[pointing][i]
+					correction_factor = outside_pointing_params[pointing][l]
 					pointing_timeranges = timerange[pointing]
-					print pointing
-					print pointing_timeranges
-					print correction_factor
 					print 'Correcting %s' % file[:8]
 
 					uvdata = wizAIPSUVData(file[:8],'UVDATA',disk,1)
@@ -127,9 +128,10 @@ for file in os.listdir(UVFITSFILESpath):
 					### Apply the corrections for the central telescopes
 					i = 0
 					for k in pointing_timeranges:
-						i = i + 1
+						i=i+1
 						for j in range(len(correction_factor[3])):
 							i = i + 1
+							print i
 							clcor = AIPSTask('CLCOR')
 							clcor.indata = uvdata
 							clcor.sources[1] ='*'
@@ -148,43 +150,55 @@ for file in os.listdir(UVFITSFILESpath):
 					f = open('central_pointing_params.pckl.txt','a')
 					f.write(str(correction_factor[0])+' '+str(correction_factor[3])+'\n')
 					f.close()
-
-
-
-		tasav = AIPSTask('TASAV')
-		tasav.indata = uvdata
-		tasav.outname = file[:8] + 'PB'
-		tasav.go()
-		imagr = AIPSTask('IMAGR')
-		imagr.indata = uvdata
-		imagr.docalib=2
-		imagr.doband=0
-		imagr.gainuse = get_tab(uvdata,'CL')
-		imagr.sources[1:] = str(file[:8]),''
-		print imagr.sources
-		imagr.outname = file[:8]+'PB'
-		imagr.nchav = 32
-		imagr.niter = 200
-		imagr.imsize[1:] = 1024, 1024
-		imagr.cellsize[1:] = 0.001,0.001
-		imagr.go()
-		imagr.uvwtfn = 'NA'
-		imagr.go()
-		imagedata = AIPSImage(file[:8]+'PB','ICL001',1,1)
-		imagedata2 = AIPSImage(file[:8]+'PB','ICL001',1,2)
-		fittp = AIPSTask('FITTP')
-		fittp.indata = imagedata
-		fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_IM.fits'
-		fittp.go()
-		fittp.indata = imagedata2
-		fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_NA_IM.fits'
-		fittp.go()
-		fittp.indata = wizAIPSUVData(file[:8]+'PB','TASAV',1,1)
-		fittp.dataout = UVFITSFILESout+file[:8]+'_PBCOR_TASAV.fits'
-		fittp.go()
-		uvdata.zap()
-		imagedata.zap()
-		imagedata2.zap()
-		AIPSImage(file[:8]+'PB','IBM001',1,1).zap()
-		AIPSImage(file[:8]+'PB','IBM001',1,2).zap()
-		wizAIPSUVData(file[:8]+'PB','TASAV',1,1).zap()
+		if PB_out == True or PB_cen == True:
+			if apply_flags == True:
+				fitld = AIPSTask('FITLD')
+				fitld.datain=UVFLAGFILESpath+file[:8]+'_MSSC_FG_TASAV.fits'
+				fitld.outname = file[:8]
+				fitld.outclass = 'TASAV'
+				fitld.go()
+				flag_tasav = wizAIPSUVData(file[:8],'TASAV',1,1)
+				tacop = AIPSTask('TACOP')
+				tacop.indata = flag_tasav
+				tacop.outdata = uvdata
+				tacop.inext = 'FG'
+				tacop.go()
+				flag_tasav.zap()
+			tasav = AIPSTask('TASAV')
+			tasav.indata = uvdata
+			tasav.outname = file[:8] + 'PB'
+			tasav.go()
+			imagr = AIPSTask('IMAGR')
+			imagr.indata = uvdata
+			imagr.docalib=2
+			imagr.doband=0
+			imagr.flagver = 0
+			imagr.gainuse = get_tab(uvdata,'CL')
+			imagr.sources[1:] = str(file[:8]),''
+			print imagr.sources
+			imagr.outname = file[:8]+'PB'
+			imagr.nchav = 32
+			imagr.niter = 500
+			imagr.imsize[1:] = 1024, 1024
+			imagr.cellsize[1:] = 0.001,0.001
+			imagr.go()
+			imagr.uvwtfn = 'NA'
+			imagr.go()
+			imagedata = AIPSImage(file[:8]+'PB','ICL001',1,1)
+			imagedata2 = AIPSImage(file[:8]+'PB','ICL001',1,2)
+			fittp = AIPSTask('FITTP')
+			fittp.indata = imagedata
+			fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_IM.fits'
+			fittp.go()
+			fittp.indata = imagedata2
+			fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_NA_IM.fits'
+			fittp.go()
+			fittp.indata = wizAIPSUVData(file[:8]+'PB','TASAV',1,1)
+			fittp.dataout = UVFITSFILESout+file[:8]+'_PBCOR_TASAV.fits'
+			fittp.go()
+			uvdata.zap()
+			imagedata.zap()
+			imagedata2.zap()
+			AIPSImage(file[:8]+'PB','IBM001',1,1).zap()
+			AIPSImage(file[:8]+'PB','IBM001',1,2).zap()
+			wizAIPSUVData(file[:8]+'PB','TASAV',1,1).zap()
