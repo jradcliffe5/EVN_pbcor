@@ -28,26 +28,26 @@ def station_table():
   stations = {}
   # Effective aperture size in meters for each station, currently only L band
   stations["ARECIBO"] = 206 # Effective, physical diameter = 305
-  stations["BADARY"] = 32 / 1.05
-  stations["CAMBG32M"] = 32 / 1.05
+  stations["BADARY"] = 32 / 1.15
+  stations["CAMBG32M"] = 32 / 1.15
   stations["EFLSBERG"] = 78 # 100
   stations["HART"] = 26/1.05
   stations["IRBENE"] = 30 / 1.05
   stations["JODRELL1"] = 67. #67 original value # 76
-  stations["JODRELL2"] = 25/1.05
+  stations["JODRELL2"] = 25/1.15
   stations["KUNMING"] = 40/1.05
   stations["MEDICINA"] = 25 #32/1.05
   stations["METSAHOV"] = 14/1.05
-  stations["NOTO"] = 32 / 1.05
-  stations["ONSALA60"] = 20/1.05
-  stations["ONSALA85"] = 25/1.05
+  stations["NOTO"] = 32 / 1.15
+  stations["ONSALA60"] = 20/1.15
+  stations["ONSALA85"] = 25/1.15
   stations["ONS_DBBC"] = stations["ONSALA85"]
-  stations["ROBLEDO"] = 70/1.05
+  stations["ROBLEDO"] = 70/1.15
   stations["SHANGHAI"] = 22.5 # 25
-  stations["SVETLOE"] = 32/1.05
+  stations["SVETLOE"] = 32/1.15
   stations["TORUN"] = 32/1.05
-  stations["URUMQI"] = 25/1.05
-  stations["WSTRBORK"] = 25 / 1.05
+  stations["URUMQI"] = 25/1.15
+  stations["WSTRBORK"] = 25 / 1.15
   stations["YEBES40M"] = 40 / 1.05
   stations["ZELENCHK"] = 32 / 1.05
   stations["GBT_VLBA"] = 100. / 1.05
@@ -264,8 +264,8 @@ for i in range(len(filenames)):
             print telescopes[j], derived_corr_factor
     corr_params = corr_params + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
 
-os.system('rm central_pointing_params_normalisation.pckl')
-f = open('central_pointing_params_normalisation.pckl', 'wb')
+os.system('rm central_pointing_params.pckl')
+f = open('central_pointing_params.pckl', 'wb')
 pickle.dump(corr_params, f)
 f.close()
 
@@ -294,8 +294,8 @@ for i in multiple_pointing_names:
     pbcor_density,RA_lim,DEC_lim)
 
 
-os.system('rm outside_pointing_params_normalisation.pckl')
-f = open('outside_pointing_params_normalisation.pckl', 'wb')
+os.system('rm outside_pointing_params.pckl')
+f = open('outside_pointing_params.pckl', 'wb')
 pickle.dump(x, f)
 f.close()
 print 'COMPLETE'

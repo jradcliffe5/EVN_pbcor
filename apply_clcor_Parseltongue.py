@@ -11,7 +11,7 @@ UVFITSFILESpath = './'
 IMAGEFITSFILESout = './'
 UVFITSFILESout = './'
 FLAGFILESin = './flag_tables/'
-AIPS.userno = 10
+AIPS.userno = 9
 disk = 1
 pointing_names = ['HDFN','P1','P2','P3','P4']
 #############
@@ -150,42 +150,41 @@ for file in os.listdir(UVFITSFILESpath):
 					f.close()
 
 
-'''
-            tasav = AIPSTask('TASAV')
-            tasav.indata = uvdata
-            tasav.outname = file[:8] + 'PB'
-            tasav.go()
-            imagr = AIPSTask('IMAGR')
-            imagr.indata = uvdata
-            imagr.docalib=2
-            imagr.doband=0
-            imagr.gainuse = get_tab(uvdata,'CL')
-            imagr.sources[1:] = str(file[:8]),''
-            print imagr.sources
-            imagr.outname = file[:8]+'PB'
-            imagr.nchav = 32
-            imagr.niter = 200
-            imagr.imsize[1:] = 1024, 1024
-            imagr.cellsize[1:] = 0.001,0.001
-            imagr.go()
-            imagr.uvwtfn = 'NA'
-            imagr.go()
-            imagedata = AIPSImage(file[:8]+'PB','ICL001',1,1)
-            imagedata2 = AIPSImage(file[:8]+'PB','ICL001',1,2)
-            fittp = AIPSTask('FITTP')
-            fittp.indata = imagedata
-            fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_IM.fits'
-            fittp.go()
-            fittp.indata = imagedata2
-            fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_NA_IM.fits'
-            fittp.go()
-            fittp.indata = wizAIPSUVData(file[:8]+'PB','TASAV',1,1)
-            fittp.dataout = UVFITSFILESout+file[:8]+'_PBCOR_TASAV.fits'
-            fittp.go()
-            uvdata.zap()
-            imagedata.zap()
-            imagedata2.zap()
-            AIPSImage(file[:8]+'PB','IBM001',1,1).zap()
-            AIPSImage(file[:8]+'PB','IBM001',1,2).zap()
-            wizAIPSUVData(file[:8]+'PB','TASAV',1,1).zap()
-			'''
+
+		tasav = AIPSTask('TASAV')
+		tasav.indata = uvdata
+		tasav.outname = file[:8] + 'PB'
+		tasav.go()
+		imagr = AIPSTask('IMAGR')
+		imagr.indata = uvdata
+		imagr.docalib=2
+		imagr.doband=0
+		imagr.gainuse = get_tab(uvdata,'CL')
+		imagr.sources[1:] = str(file[:8]),''
+		print imagr.sources
+		imagr.outname = file[:8]+'PB'
+		imagr.nchav = 32
+		imagr.niter = 200
+		imagr.imsize[1:] = 1024, 1024
+		imagr.cellsize[1:] = 0.001,0.001
+		imagr.go()
+		imagr.uvwtfn = 'NA'
+		imagr.go()
+		imagedata = AIPSImage(file[:8]+'PB','ICL001',1,1)
+		imagedata2 = AIPSImage(file[:8]+'PB','ICL001',1,2)
+		fittp = AIPSTask('FITTP')
+		fittp.indata = imagedata
+		fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_IM.fits'
+		fittp.go()
+		fittp.indata = imagedata2
+		fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_NA_IM.fits'
+		fittp.go()
+		fittp.indata = wizAIPSUVData(file[:8]+'PB','TASAV',1,1)
+		fittp.dataout = UVFITSFILESout+file[:8]+'_PBCOR_TASAV.fits'
+		fittp.go()
+		uvdata.zap()
+		imagedata.zap()
+		imagedata2.zap()
+		AIPSImage(file[:8]+'PB','IBM001',1,1).zap()
+		AIPSImage(file[:8]+'PB','IBM001',1,2).zap()
+		wizAIPSUVData(file[:8]+'PB','TASAV',1,1).zap()
