@@ -254,14 +254,18 @@ for i in range(len(filenames)):
     print filenames[i]
     for j in range(len(telescopes)):
         if telescopes[j] not in outside_telescopes:
-            x, y = np.mgrid[RA_lim[0]:RA_lim[1]:pbcor_density,DEC_lim[0]:DEC_lim[1]:pbcor_density] ## Need to add dependencies for sky area
-            derived_corr_factor= {AIPStelescope[j]:np.sqrt(1/(telescope_single_psf[telescopes[j]](RA[i],DEC[i])/np.max(telescope_single_psf[telescopes[j]](x,y))))}
+            print RA[i],DEC[i]
+            if float(RA[i]) > 360.:
+                RA_e = float(RA[i]) - 360.
+            else:
+                RA_e = float(RA[i])
+            derived_corr_factor= {AIPStelescope[j]:np.sqrt(1/(telescope_single_psf[telescopes[j]](RA_e,DEC[i])))}
             single_psf_corr = single_psf_corr + [derived_corr_factor]
             print telescopes[j], derived_corr_factor
     corr_params = corr_params + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
 
-os.system('rm central_pointing_params.pckl')
-f = open('central_pointing_params.pckl', 'wb')
+os.system('rm central_pointing_params_normalisation.pckl')
+f = open('central_pointing_params_normalisation.pckl', 'wb')
 pickle.dump(corr_params, f)
 f.close()
 
@@ -273,8 +277,12 @@ def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,
         single_psf_corr = []
         print filenames[i]
         for j in range(len(outside_telescopes)): ## go through each telescope
-            x, y = np.mgrid[RA_lim[0]:RA_lim[1]:pbcor_density,DEC_lim[0]:DEC_lim[1]:pbcor_density]
-            derived_corr_factor = [{outsideAIPStelescope[j]:np.sqrt(1/(telescope_multiple_psf[pointing_name][outside_telescopes[j]](RA[i],DEC[i])/np.max(telescope_multiple_psf[pointing_name][outside_telescopes[j]](x,y))))}]
+            print RA[i],DEC[i]
+            if float(RA[i]) > 360.:
+                RA_e = float(RA[i]) - 360.
+            else:
+                RA_e = float(RA[i])
+            derived_corr_factor = [{outsideAIPStelescope[j]:np.sqrt(1/(telescope_multiple_psf[pointing_name][outside_telescopes[j]](RA_e,DEC[i])))}]
             single_psf_corr = single_psf_corr + derived_corr_factor
             print outside_telescopes[j], derived_corr_factor
         EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
@@ -286,8 +294,8 @@ for i in multiple_pointing_names:
     pbcor_density,RA_lim,DEC_lim)
 
 
-os.system('rm outside_pointing_params.pckl')
-f = open('outside_pointing_params.pckl', 'wb')
+os.system('rm outside_pointing_params_normalisation.pckl')
+f = open('outside_pointing_params_normalisation.pckl', 'wb')
 pickle.dump(x, f)
 f.close()
 print 'COMPLETE'
