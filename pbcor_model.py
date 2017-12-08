@@ -196,7 +196,7 @@ for i in range(len(telescopes)):
         plt.grid(color='w')
         plt.savefig('PB_plots/'+telescopes[i]+'_single_voltage_beam.png',bbox_inches='tight',)
         plt.close('all')
-'''
+
 for i in range(len(telescopes)):
     if telescopes[i] not in outside_telescopes:
         x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
@@ -248,7 +248,7 @@ for j in range(len(multiple_pointing_names)):
         plt.grid(color='w')
         plt.savefig('PB_plots/%s_%s_single_power_beam.png' %  (multiple_pointing_names[j],outside_telescopes[i]),bbox_inches='tight',)
         plt.close('all')
-'''
+
 
 print 'GRIDDING THE PRIMARY BEAMS TO EXTRACT VALUES FOR CORRECTIONS'
 ## Generate voltage beam corrections for CLCOR by taking sqrt of power beam corrections
