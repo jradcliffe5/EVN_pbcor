@@ -1,0 +1,217 @@
+  localhos  AIPS (31DEC17)     20     30-AUG-2017  16:06:37    Page    1
+History file for CALIB_TABL  .TASAV .    1 with   1198 entries
+ 
+    82  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   11:39:26
+    83  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+    84  CLCAL SOURCES = ''     / All sources selected
+    85  CLCAL SOUCODE ='    ' / Source Cal code
+    86  CLCAL CALSOUR = ''     / All calibrators selected
+    87  CLCAL QUAL =   -1 CALCODE = '    '
+    88  CLCAL /TIMERANG = beginning to end
+    89  CLCAL SUBARRAY =   0
+    90  CLCAL ANTENNAS = 0     / All antennas selected
+    91  CLCAL GAINVER =  1, GAINUSE =  2 / CL table
+    92  CLCAL INTERPOL = 'AMBG' / Interpolation type
+    93  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+    94  CLCAL SNVER =    1   1 / SN table versions used
+    95  CLCAL REFANT =    1 / Reference antenna used
+   132  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   11:39:37
+   133  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   134  CLCAL SOURCES = ''     / All sources selected
+   135  CLCAL SOUCODE ='    ' / Source Cal code
+   136  CLCAL CALSOUR = ''     / All calibrators selected
+   137  CLCAL QUAL =   -1 CALCODE = '    '
+   138  CLCAL /TIMERANG = beginning to end
+   139  CLCAL SUBARRAY =   0
+   140  CLCAL ANTENNAS = 0     / All antennas selected
+   141  CLCAL GAINVER =  2, GAINUSE =  3 / CL table
+   142  CLCAL INTERPOL = '2PT ' / Interpolation type
+   143  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+   144  CLCAL SNVER =    2   2 / SN table versions used
+   145  CLCAL REFANT =    1 / Reference antenna used
+   351  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   11:53:55
+   352  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   353  CLCAL SOURCES = ''     / All sources selected
+   354  CLCAL SOUCODE ='    ' / Source Cal code
+   355  CLCAL CALSOUR = ''     / All calibrators selected
+   356  CLCAL QUAL =   -1 CALCODE = '    '
+   357  CLCAL /TIMERANG = beginning to end
+   358  CLCAL SUBARRAY =   0
+   359  CLCAL ANTENNAS = 0     / All antennas selected
+   360  CLCAL GAINVER =  3, GAINUSE =  4 / CL table
+   361  CLCAL INTERPOL = 'AMBG' / Interpolation type
+   362  CLCAL CUTOFF = 60.0 minutes / Interpolation limit
+   363  CLCAL SNVER =   12  12 / SN table versions used
+   364  CLCAL REFANT =    1 / Reference antenna used
+   468  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   12:00:37
+   469  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   470  CLCAL SOURCES = ''     / All sources selected
+   471  CLCAL SOUCODE ='    ' / Source Cal code
+   472  CLCAL CALSOUR = ''     / All calibrators selected
+   473  CLCAL QUAL =   -1 CALCODE = '    '
+   474  CLCAL /TIMERANG = beginning to end
+   475  CLCAL SUBARRAY =   0
+   476  CLCAL ANTENNAS = 0     / All antennas selected
+   477  CLCAL GAINVER =  4, GAINUSE =  5 / CL table
+   478  CLCAL INTERPOL = 'AMBG' / Interpolation type
+   479  CLCAL CUTOFF = 60.0 minutes / Interpolation limit
+   480  CLCAL SNVER =   17  17 / SN table versions used
+   481  CLCAL REFANT =    1 / Reference antenna used
+  localhos  AIPS (31DEC17)     20     30-AUG-2017  16:06:37    Page    2
+History file for CALIB_TABL  .TASAV .    1 with   1198 entries
+ 
+   529  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   12:06:38
+   530  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   531  CLCAL  / Sources included:
+   532  CLCAL SOURCES = 'J1241+602       ','HDFC0155        '
+   533  CLCAL          ,'J1234+619       ','                '
+   534  CLCAL SOUCODE ='    ' / Source Cal code
+   535  CLCAL  / Calibrators included:
+   536  CLCAL CALSOUR = 'J1241+602       ','                '
+   537  CLCAL QUAL =   -1 CALCODE = '    '
+   538  CLCAL /TIMERANG = beginning to end
+   539  CLCAL SUBARRAY =   0
+   540  CLCAL ANTENNAS = 0     / All antennas selected
+   541  CLCAL GAINVER =  5, GAINUSE =  6 / CL table
+   542  CLCAL INTERPOL = 'AMBG' / Interpolation type
+   543  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+   544  CLCAL SNVER =   18  18 / SN table versions used
+   545  CLCAL REFANT =    1 / Reference antenna used
+   593  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   12:10:09
+   594  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   595  CLCAL  / Sources included:
+   596  CLCAL SOURCES = 'J1241+602       ','HDFC0155        '
+   597  CLCAL          ,'J1234+619       ','                '
+   598  CLCAL SOUCODE ='    ' / Source Cal code
+   599  CLCAL  / Calibrators included:
+   600  CLCAL CALSOUR = 'J1241+602       ','                '
+   601  CLCAL QUAL =   -1 CALCODE = '    '
+   602  CLCAL /TIMERANG = beginning to end
+   603  CLCAL SUBARRAY =   0
+   604  CLCAL ANTENNAS = 0     / All antennas selected
+   605  CLCAL GAINVER =  6, GAINUSE =  7 / CL table
+   606  CLCAL INTERPOL = 'AMBG' / Interpolation type
+   607  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+   608  CLCAL SNVER =   19  19 / SN table versions used
+   609  CLCAL REFANT =    1 / Reference antenna used
+   657  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   12:13:00
+   658  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   659  CLCAL  / Sources included:
+   660  CLCAL SOURCES = 'J1241+602       ','HDFC0155        '
+   661  CLCAL          ,'J1234+619       ','                '
+   662  CLCAL SOUCODE ='    ' / Source Cal code
+   663  CLCAL  / Calibrators included:
+   664  CLCAL CALSOUR = 'J1241+602       ','                '
+   665  CLCAL QUAL =   -1 CALCODE = '    '
+   666  CLCAL /TIMERANG = beginning to end
+   667  CLCAL SUBARRAY =   0
+   668  CLCAL ANTENNAS = 0     / All antennas selected
+   669  CLCAL GAINVER =  7, GAINUSE =  8 / CL table
+   670  CLCAL INTERPOL = 'AMBG' / Interpolation type
+   671  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+   672  CLCAL SNVER =   20  20 / SN table versions used
+   673  CLCAL REFANT =    1 / Reference antenna used
+   721  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   12:16:59
+   722  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   723  CLCAL  / Sources included:
+   724  CLCAL SOURCES = 'J1241+602       ','HDFC0155        '
+   725  CLCAL          ,'J1234+619       ','                '
+  localhos  AIPS (31DEC17)     20     30-AUG-2017  16:06:37    Page    3
+History file for CALIB_TABL  .TASAV .    1 with   1198 entries
+ 
+   726  CLCAL SOUCODE ='    ' / Source Cal code
+   727  CLCAL  / Calibrators included:
+   728  CLCAL CALSOUR = 'J1241+602       ','                '
+   729  CLCAL QUAL =   -1 CALCODE = '    '
+   730  CLCAL /TIMERANG = beginning to end
+   731  CLCAL SUBARRAY =   0
+   732  CLCAL ANTENNAS = 0     / All antennas selected
+   733  CLCAL GAINVER =  8, GAINUSE =  9 / CL table
+   734  CLCAL INTERPOL = 'AMBG' / Interpolation type
+   735  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+   736  CLCAL SNVER =   21  21 / SN table versions used
+   737  CLCAL REFANT =    1 / Reference antenna used
+   857  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   13:37:17
+   858  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   859  CLCAL  / Sources included:
+   860  CLCAL SOURCES = 'J1241+602       ','HDFC0155        '
+   861  CLCAL          ,'J1234+619       ','                '
+   862  CLCAL SOUCODE ='    ' / Source Cal code
+   863  CLCAL  / Calibrators included:
+   864  CLCAL CALSOUR = 'J1241+602       ','                '
+   865  CLCAL QUAL =   -1 CALCODE = '    '
+   866  CLCAL /TIMERANG = beginning to end
+   867  CLCAL SUBARRAY =   0
+   868  CLCAL ANTENNAS = 0     / All antennas selected
+   869  CLCAL GAINVER =  9, GAINUSE = 10 / CL table
+   870  CLCAL INTERPOL = 'AMBG' / Interpolation type
+   871  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+   872  CLCAL SNVER =   22  22 / SN table versions used
+   873  CLCAL REFANT =    1 / Reference antenna used
+   923  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   13:43:45
+   924  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   925  CLCAL  / Sources included:
+   926  CLCAL SOURCES = 'J1234+619       ','HDFC0155        '
+   927  CLCAL SOUCODE ='    ' / Source Cal code
+   928  CLCAL  / Calibrators included:
+   929  CLCAL CALSOUR = 'J1234+619       ','                '
+   930  CLCAL QUAL =   -1 CALCODE = '    '
+   931  CLCAL /TIMERANG = beginning to end
+   932  CLCAL SUBARRAY =   0
+   933  CLCAL ANTENNAS = 0     / All antennas selected
+   934  CLCAL GAINVER = 10, GAINUSE = 11 / CL table
+   935  CLCAL INTERPOL = 'AMBG' / Interpolation type
+   936  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+   937  CLCAL SNVER =   23  23 / SN table versions used
+   938  CLCAL REFANT =    1 / Reference antenna used
+   988  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   13:48:19
+   989  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+   990  CLCAL  / Sources included:
+   991  CLCAL SOURCES = 'J1234+619       ','HDFC0155        '
+   992  CLCAL SOUCODE ='    ' / Source Cal code
+   993  CLCAL  / Calibrators included:
+   994  CLCAL CALSOUR = 'J1234+619       ','                '
+   995  CLCAL QUAL =   -1 CALCODE = '    '
+   996  CLCAL /TIMERANG = beginning to end
+   997  CLCAL SUBARRAY =   0
+   998  CLCAL ANTENNAS = 0     / All antennas selected
+  localhos  AIPS (31DEC17)     20     30-AUG-2017  16:06:37    Page    4
+History file for CALIB_TABL  .TASAV .    1 with   1198 entries
+ 
+   999  CLCAL GAINVER = 11, GAINUSE = 12 / CL table
+  1000  CLCAL INTERPOL = 'AMBG' / Interpolation type
+  1001  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+  1002  CLCAL SNVER =   24  24 / SN table versions used
+  1003  CLCAL REFANT =    1 / Reference antenna used
+  1053  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   13:52:32
+  1054  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+  1055  CLCAL  / Sources included:
+  1056  CLCAL SOURCES = 'J1234+619       ','HDFC0155        '
+  1057  CLCAL SOUCODE ='    ' / Source Cal code
+  1058  CLCAL  / Calibrators included:
+  1059  CLCAL CALSOUR = 'J1234+619       ','                '
+  1060  CLCAL QUAL =   -1 CALCODE = '    '
+  1061  CLCAL /TIMERANG = beginning to end
+  1062  CLCAL SUBARRAY =   0
+  1063  CLCAL ANTENNAS = 0     / All antennas selected
+  1064  CLCAL GAINVER = 12, GAINUSE = 13 / CL table
+  1065  CLCAL INTERPOL = 'AMBG' / Interpolation type
+  1066  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+  1067  CLCAL SNVER =   25  25 / SN table versions used
+  1068  CLCAL REFANT =    1 / Reference antenna used
+  1118  CLCAL RELEASE ='31DEC14 '  /********* Start 22-JUL-2015   13:55:56
+  1119  CLCAL OPCODE ='CALP' / MERG, CALI, or CALP
+  1120  CLCAL  / Sources included:
+  1121  CLCAL SOURCES = 'J1234+619       ','HDFC0155        '
+  1122  CLCAL SOUCODE ='    ' / Source Cal code
+  1123  CLCAL  / Calibrators included:
+  1124  CLCAL CALSOUR = 'J1234+619       ','                '
+  1125  CLCAL QUAL =   -1 CALCODE = '    '
+  1126  CLCAL /TIMERANG = beginning to end
+  1127  CLCAL SUBARRAY =   0
+  1128  CLCAL ANTENNAS = 0     / All antennas selected
+  1129  CLCAL GAINVER = 13, GAINUSE = 14 / CL table
+  1130  CLCAL INTERPOL = 'AMBG' / Interpolation type
+  1131  CLCAL CUTOFF =  0.0 minutes / Interpolation limit
+  1132  CLCAL SNVER =   26  26 / SN table versions used
+  1133  CLCAL REFANT =    1 / Reference antenna used
