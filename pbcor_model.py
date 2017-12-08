@@ -1,22 +1,18 @@
-import astropy
+import sys, os, pickle
+import numpy as np
 from astropy.coordinates import SkyCoord
 from astropy.modeling import models
-from scipy import constants
-import numpy as np
 from astropy import units as u
-import matplotlib.pyplot as plt
-import sys
 from astropy.io import fits
 from astropy.wcs import WCS
-import os
-from astropy.coordinates import SkyCoord
+from scipy import constants
 from numpy import linspace, meshgrid
-from matplotlib.mlab import griddata
-import scipy.ndimage as ndimage
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from scipy.interpolate import interp2d
+import matplotlib.pyplot as plt
+from matplotlib.mlab import griddata
 from matplotlib.colors import LogNorm
-import pickle
+import scipy.ndimage as ndimage
+from scipy.interpolate import interp2d
 ## Set up observation information
 plt.ioff()
 
@@ -61,8 +57,8 @@ def generate_psf(phase_centers,telescope,model): ##generate voltage beams!
             ystd =station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2)))*u.degree
             if i == 0:
                 EF = models.Gaussian2D(amplitude=1, \
-                                       x_mean=phase_centers[i].ra.degree,\
-                                       y_mean=phase_centers[i].dec.degree,\
+                                       x_mean=phase_centers[i].ra,\
+                                       y_mean=phase_centers[i].dec,\
                                        x_stddev=xstd,\
                                        y_stddev=ystd, theta=0)
             else:
@@ -185,9 +181,12 @@ print 'PLOTTING THE PRIMARY BEAMS OF TELESCOPES ON SINGLE POINTING'
 for i in range(len(telescopes)):
     if telescopes[i] not in outside_telescopes:
         x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
+        x = x*u.degree
+        y = y*u.degree
         plot = telescope_single_psf[telescopes[i]]
         EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
         plt.figure(i,figsize=(8, 8))
+        #print plot
         plt.pcolormesh(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),cmap='magma',vmin=0.1,vmax=1)
         plt.contour(x,y,np.sqrt(plot(x,y))/np.max(np.sqrt(plot(x,y))),levels=[0.5],colors=('w'),\
         linestyles=('-.'))
@@ -197,9 +196,12 @@ for i in range(len(telescopes)):
         plt.grid(color='w')
         plt.savefig('PB_plots/'+telescopes[i]+'_single_voltage_beam.png',bbox_inches='tight',)
         plt.close('all')
+'''
 for i in range(len(telescopes)):
     if telescopes[i] not in outside_telescopes:
         x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
+        x = x*u.degree
+        y = y*u.degree
         plot = telescope_single_psf[telescopes[i]]
         EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
         plt.figure(i,figsize=(8, 8))
@@ -216,6 +218,8 @@ print 'PLOTTING THE PRIMARY BEAMS OF TELESCOPES ON MULTIPLE POINTING'
 for j in range(len(multiple_pointing_names)):
     for i in range(len(outside_telescopes)):
         x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
+        x = x*u.degree
+        y = y*u.degree
         plot = telescope_multiple_psf[multiple_pointing_names[j]][outside_telescopes[i]]
         EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
         plt.figure(i,figsize=(8, 8))
@@ -231,6 +235,8 @@ for j in range(len(multiple_pointing_names)):
 for j in range(len(multiple_pointing_names)):
     for i in range(len(outside_telescopes)):
         x, y = np.mgrid[RA_lim[0]:RA_lim[1]:plot_density,DEC_lim[0]:DEC_lim[1]:plot_density]
+        x = x*u.degree
+        y = y*u.degree
         plot = telescope_multiple_psf[multiple_pointing_names[j]][outside_telescopes[i]]
         EG078B_positions = SkyCoord(RA,DEC,unit='deg',frame='icrs')
         plt.figure(i,figsize=(8, 8))
@@ -242,7 +248,7 @@ for j in range(len(multiple_pointing_names)):
         plt.grid(color='w')
         plt.savefig('PB_plots/%s_%s_single_power_beam.png' %  (multiple_pointing_names[j],outside_telescopes[i]),bbox_inches='tight',)
         plt.close('all')
-
+'''
 
 print 'GRIDDING THE PRIMARY BEAMS TO EXTRACT VALUES FOR CORRECTIONS'
 ## Generate voltage beam corrections for CLCOR by taking sqrt of power beam corrections
@@ -259,7 +265,7 @@ for i in range(len(filenames)):
                 RA_e = float(RA[i]) - 360.
             else:
                 RA_e = float(RA[i])
-            derived_corr_factor= {AIPStelescope[j]:np.sqrt(1/(telescope_single_psf[telescopes[j]](RA_e,DEC[i])))}
+            derived_corr_factor= {AIPStelescope[j]:1/np.sqrt((telescope_single_psf[telescopes[j]](float(RA_e)*u.degree,float(DEC[i])*u.degree)).value)}
             single_psf_corr = single_psf_corr + [derived_corr_factor]
             print telescopes[j], derived_corr_factor
     corr_params = corr_params + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
@@ -282,7 +288,7 @@ def multiple_pointings_params(filenames,outside_telescopes,pointing_name,RA,DEC,
                 RA_e = float(RA[i]) - 360.
             else:
                 RA_e = float(RA[i])
-            derived_corr_factor = [{outsideAIPStelescope[j]:np.sqrt(1/(telescope_multiple_psf[pointing_name][outside_telescopes[j]](RA_e,DEC[i])))}]
+            derived_corr_factor = [{outsideAIPStelescope[j]:np.sqrt(1/(telescope_multiple_psf[pointing_name][outside_telescopes[j]](float(RA_e)*u.degree,float(DEC[i])*u.degree)).value)}]
             single_psf_corr = single_psf_corr + derived_corr_factor
             print outside_telescopes[j], derived_corr_factor
         EG078B_CLCOR_corr = EG078B_CLCOR_corr + [[filenames[i],RA[i],DEC[i],single_psf_corr]]
