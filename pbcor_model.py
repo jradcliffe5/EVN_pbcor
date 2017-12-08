@@ -57,8 +57,8 @@ def generate_psf(phase_centers,telescope,model): ##generate voltage beams!
             ystd =station_HPBW(stations[telescope],frequency)/(2*np.sqrt(2*np.log(2)))*u.degree
             if i == 0:
                 EF = models.Gaussian2D(amplitude=1, \
-                                       x_mean=phase_centers[i].ra,\
-                                       y_mean=phase_centers[i].dec,\
+                                       x_mean=phase_centers[i].ra.degree,\
+                                       y_mean=phase_centers[i].dec.degree,\
                                        x_stddev=xstd,\
                                        y_stddev=ystd, theta=0)
             else:
