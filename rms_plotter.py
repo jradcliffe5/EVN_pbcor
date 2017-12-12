@@ -13,10 +13,17 @@ from scipy.ndimage.filters import gaussian_filter
 import matplotlib.pyplot as plt
 from regions import CircleSkyRegion
 from matplotlib import *
+from matplotlib import rc
+from matplotlib import rcParams
+
+rc('font', **{'family':'serif','serif':['Computer Modern']})
+rc('text', usetex=True)
+rcParams['mathtext.default'] = 'regular'
 figsize = plt.rcParams["figure.figsize"]
 figsize[1]=9
 figsize[0]=9
 plt.rcParams["figure.figsize"]=figsize
+matplotlib.rcParams.update({'font.size': 22})
 def convertAIPStoPythonImage(filename,outfilename):
     hdu_list = fits.open(filename)
 
@@ -54,17 +61,19 @@ RA= []
 DEC = []
 rms = []
 os.system('rm *Py.fits')
-
+os.system('rm *Py.fits')
+f = []
 for file in os.listdir('./'):
     if file.endswith('.fits'):
         hdu = fits.open(file)
         print file
+	f.append(file)
         #print 360+hdu[0].header['CRVAL1']
         RA.append(360+float(hdu[0].header['CRVAL1']))
         DEC.append(float(hdu[0].header['CRVAL2']))
         image_data = hdu[0].data
         image_data = image_data[0,0,:,:]
-        rms.append(np.std(image_data[154:518,700:900]))
+        rms.append(np.sqrt(np.mean(np.square(image_data[150:1200,150:1200])))*1E6)
 #print RA, DEC, rms
 #print rms
 #print np.nonzero(rms > 10E-6)
@@ -73,7 +82,7 @@ for file in os.listdir('./'):
 c = SkyCoord(RA,DEC,unit='deg',frame='icrs')
 
 ### Create axes & scatter plot
-filename = 'HDFC0155_NA_PBCOR_IM.fits' ## input fits file for correct wcs definition
+filename = 'HDFC0155_PBCOR_NA_IM.fits' ## input fits file for correct wcs definition
 outfilename = 'HDFC0155_NA_PBCOR_IMPy.fits'
 convertAIPStoPythonImage(filename,outfilename)
 hdu = fits.open(outfilename)
@@ -87,19 +96,24 @@ lon.set_major_formatter('hh:mm:ss')
 lat.set_major_formatter('dd:mm:ss')
 lon.set_axislabel('Right Ascension (J2000)', minpad=1.5)
 lat.set_axislabel('Declination (J2000)', minpad=1)
-ax.set_xlim(-1100000, 1100000)
-ax.set_ylim(-1100000, 1100000)
+lim = 500000
+shiftx = -50000
+shifty = -10000
+ax.set_xlim((lim*-1)+shiftx, lim+shiftx)
+ax.set_ylim((lim*-1)+shifty, lim+shifty)
 #ax1.set_xlim(-500000, 500000)HDFC0155_PBCOR_IM.fits
 #ax1.set_ylim(-500000, 500000)
 X, Y, Z = grid(c.ra.degree, c.dec.degree, rms)
-im = ax.pcolormesh(X,Y,Z,transform=ax.get_transform('icrs'),cmap='magma',vmin=np.amin(rms), vmax=50E-6, alpha=1)
+Z_gauss = np.nan_to_num(np.array(gaussian_filter(Z,12)))
+Z_gauss[Z_gauss==0] = 50
+im = ax.pcolormesh(X,Y,Z_gauss,transform=ax.get_transform('icrs'),cmap='magma',vmin=np.amin(rms), vmax=40, alpha=1)
 ax.scatter(c.ra.degree, c.dec.degree, transform=ax.get_transform('icrs'), marker='+',color='g',norm=matplotlib.colors.LogNorm(),alpha=1)
-CS = ax.contour(X,Y,gaussian_filter(Z,10),levels=np.linspace(np.amin(rms),50E-6,8),colors='w',transform=ax.get_transform('icrs'), interpolation='none')
+CS = ax.contour(X,Y,gaussian_filter(Z,10),levels=np.linspace(np.amin(rms),40,6),colors='w',transform=ax.get_transform('icrs'), interpolation='none')
 divider = make_axes_locatable(ax)
 cax = divider.append_axes("top", size="5%", pad=0.00,axes_class=matplotlib.axes.Axes)
-cb = plt.colorbar(orientation="horizontal",mappable=im, cax=cax,format='%.1e',ticks=np.linspace(np.amin(rms),50E-6,8),extend='max')
+cb = plt.colorbar(orientation="horizontal",mappable=im, cax=cax,format='%d',ticks=np.linspace(np.amin(rms),40,6),extend='max')
 cb.add_lines(CS)
-cb.ax.xaxis.set_ticks_position('top') 
+cb.ax.xaxis.set_ticks_position('top')
 region1 = CircleSkyRegion(SkyCoord('12h36m50.0s', '+62d12m58.00s', frame='icrs'), Angle(0.0625, 'deg'))
 pixel_region1 = region1.to_pixel(wcs)
 region2 = CircleSkyRegion(SkyCoord('12h37m20.0s', '+62d16m28.00s', frame='icrs'), Angle(0.0625, 'deg'))
@@ -115,12 +129,12 @@ pixel_region2.plot(ax,facecolor='none', edgecolor='red',linestyle='--')
 pixel_region3.plot(ax,facecolor='none', edgecolor='red',linestyle='--')
 pixel_region4.plot(ax,facecolor='none', edgecolor='red',linestyle='--')
 pixel_region5.plot(ax,facecolor='none', edgecolor='red',linestyle='--')
-cax.set_xlabel("1$\sigma$ r.m.s. sensitivity ($\mu$Jy/bm)", labelpad=-60)
+cax.set_xlabel("1$\sigma$ r.m.s. sensitivity ($\mu$Jy/bm)", labelpad=-80)
 #print np.amin(rms), np.amax(rms)
-fig.savefig('rms_pbcor_cal_weights.pdf',bbox_inches='tight',dpi=fig.dpi,format="pdf")
-plt.show()
+fig.savefig('rms_pbcor.png',bbox_inches='tight',dpi=fig.dpi,format="png")
 
-
+np.save('rms_pbcor.npy',[f,c.ra.degree,c.dec.degree,rms])
+#plt.show()
 '''
 c = SkyCoord(RA,DEC,unit='deg',frame='icrs')
 hdu = fits.open(outfilename)
