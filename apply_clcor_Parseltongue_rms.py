@@ -7,12 +7,12 @@ from AIPSData import  AIPSImage
 import sys, operator, pickle, os
 
 ## Inputs ##
-UVFITSFILESpath = './Uniform_weighting_UV/'
-UVFLAGFILESpath = '../../../remove_antennas/central_fields/TASAV/'
+UVFITSFILESpath = 'Uniform_weighting_UV/'
+UVFLAGFILESpath = '../../../remove_antennas/eMERGE/TASAV/'
 IMAGEFITSFILESout = './'
 UVFITSFILESout = './'
 FLAGFILESin = './flag_tables/'
-AIPS.userno = 9
+AIPS.userno = 12
 disk = 1
 apply_flags = True ## for flagging of multiple pointings
 pointing_names = ['HDFN','P1','P2','P3','P4']
@@ -54,6 +54,7 @@ def input_files(pickle_file):
 #### These are the correction factors
 central_pointing_params = input_files('central_pointing_params.pckl')
 outside_pointing_params = input_files('outside_pointing_params.pckl')
+print central_pointing_params
 ###################################################################
 ### This function parses the timeranges from the user made fits files
 ### The !! in the file is needed to match with the name of the pointing centers
@@ -69,13 +70,14 @@ PB_out = False
 PB_cen = False
 ########### Firstly get a list of all the UV data files to derive corrections for
 for file in os.listdir(UVFITSFILESpath):
-	####### Check if each of these files end in .UV... just out of courtesy
 	print file
+	####### Check if each of these files end in .UV... just out of courtesy
 	if (file.endswith('.UV')) and (len([s for s in os.listdir('./') if file[:8] in s]) == 0):
 	####### Check if each of these files end in .UV... just out of courtesy
 		#[s for s in os.listdir(UVFITSFILESpath) if file[:8] in s]
 		#print file
 		### Now need to firstly correct for the central pointing
+
 		for l in range(len(central_pointing_params)):
 			if central_pointing_params[l][0] == file[:8]:
 				### Slice the correction factors based upon source name
@@ -172,18 +174,16 @@ for file in os.listdir(UVFITSFILESpath):
 			imagr.indata = uvdata
 			imagr.docalib=2
 			imagr.doband=0
-			imagr.flagver = 0
 			imagr.gainuse = get_tab(uvdata,'CL')
 			imagr.sources[1:] = str(file[:8]),''
 			print imagr.sources
 			imagr.outname = file[:8]+'PB'
 			imagr.nchav = 32
-			imagr.niter = 1000
-			imagr.imsize[1:] = 4096,4096
-			imagr.cellsize[1:] = 0.0001,0.0001
+			imagr.niter = 1
+			imagr.imsize[1:] = 3092, 3092
+			imagr.cellsize[1:] = 0.001,0.001
 			imagr.go()
 			imagr.uvwtfn = 'NA'
-                        imagr.cellsize[1:]=0.001,0.001
 			imagr.go()
 			imagedata = AIPSImage(file[:8]+'PB','ICL001',1,1)
 			imagedata2 = AIPSImage(file[:8]+'PB','ICL001',1,2)

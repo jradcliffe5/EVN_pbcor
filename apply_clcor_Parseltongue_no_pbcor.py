@@ -173,7 +173,7 @@ for file in os.listdir(UVFITSFILESpath):
 			imagr.docalib=2
 			imagr.doband=0
 			imagr.flagver = 0
-			imagr.gainuse = get_tab(uvdata,'CL')
+			imagr.gainuse = get_tab(uvdata,'CL')-1
 			imagr.sources[1:] = str(file[:8]),''
 			print imagr.sources
 			imagr.outname = file[:8]+'PB'
@@ -189,10 +189,10 @@ for file in os.listdir(UVFITSFILESpath):
 			imagedata2 = AIPSImage(file[:8]+'PB','ICL001',1,2)
 			fittp = AIPSTask('FITTP')
 			fittp.indata = imagedata
-			fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_IM.fits'
+			fittp.dataout = IMAGEFITSFILESout+file[:8]+'_NOPBCOR_IM.fits'
 			fittp.go()
 			fittp.indata = imagedata2
-			fittp.dataout = IMAGEFITSFILESout+file[:8]+'_PBCOR_NA_IM.fits'
+			fittp.dataout = IMAGEFITSFILESout+file[:8]+'_NOPBCOR_NA_IM.fits'
 			fittp.go()
 			fittp.indata = wizAIPSUVData(file[:8]+'PB','TASAV',1,1)
 			fittp.dataout = UVFITSFILESout+file[:8]+'_PBCOR_TASAV.fits'
