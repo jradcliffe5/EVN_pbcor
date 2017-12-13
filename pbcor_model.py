@@ -81,8 +81,6 @@ def generate_psf(phase_centers,telescope,model): ##generate voltage beams!
 Positions1_RA = ['12h37m20s','12h36m20s','12h36m20s','12h37m20s','12h36m50s']
 Positions1_Dec = ['+62d16m28s','+62d16m28s','+62d09m28s','+62d09m28s','+62d12m58s']
 multiple_pointing_names = ['P1','P2','P3','P4','HDFN']
-
-scales = [1,1,1,1,1] ## relative observing time propto sqrt(time_per_pointing)
 #--
 ### Central pointings ###
 Positions2_RA = ['12h36m50s']
