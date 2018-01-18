@@ -45,7 +45,7 @@ imagr.gainuse = get_tab(uvdata,'CL')
 imagr.sources[1:] = str(uvdata.name),''
 imagr.outname = uvdata.name+'PB'
 imagr.nchav = 32
-imagr.niter = 1
+imagr.niter = 1500
 imagr.imsize[1:] = 4096,4096
 imagr.cellsize[1:] = 0.0001,0.0001
 imagr.go()

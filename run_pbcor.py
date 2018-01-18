@@ -34,8 +34,9 @@ tasavdir = str(inputs['TASAV_output_dir'])
 
 try:
     ### First make the pbcor file
-    #if (vexfile.endswith('.vex') or vexfile.endswith('.vax') or vexfile.endswith('.vix')):
-    #    os.system('python create_table.py %s pbcor.txt' % vexfile)
+    if (vexfile.endswith('.vex') or vexfile.endswith('.vax') or vexfile.endswith('.vix')):
+        os.system('rm pbcor.txt')
+        os.system('python create_table.py %s pbcor.txt' % vexfile)
     ### Now apply the table to every dataset
     for i in os.listdir(uvdir):
         if i.endswith('.UV'):
@@ -66,11 +67,11 @@ try:
                 os.system('mkdir %s' % tasavdir)
             os.system('mv *IM.fits %s' % imdir)
             os.system('mv *TASAV.fits %s' % tasavdir)
-    '''
+    
     gmail_emailer(user=user,pwd=pwd,recipient='j.f.radcliffe@rug.nl',subject='CODE %s RUN SUCCESSFULLY - %s' % (os.path.basename(__file__),platform.node()),body='The code %s has run successfully for %s.\n\n Please see %s:%s  for the results.\n\n The logger output of %s is as follows: %s' % (os.path.basename(__file__),datetime.now() - startTime, platform.node(),os.path.dirname(os.path.realpath(__file__)), log_name, open(log_name,'r').read()))
-    '''
+    
 except exceptions.Exception as e:
     log_exception(e)
-    '''
+    
     gmail_emailer(user=user,pwd=pwd,recipient='j.f.radcliffe@rug.nl',subject='CODE %s FAILED - %s' % (os.path.basename(__file__),platform.node()),body='The code %s has failed.\n\n Please see %s:%s for the details.\n\n The logger and associated error messages of %s is as follows:\n\n %s' % (os.path.basename(__file__), platform.node(),os.path.dirname(os.path.realpath(__file__)), log_name, open(log_name,'r').read()))
-    '''
+    
