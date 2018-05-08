@@ -1,0 +1,18 @@
+# Inputs to run the primary beam corrector of A. Keimpema
+### Executables
+parseltongue = ParselTongue
+
+### For creating the array of corrections
+vex_file         = ./Examples/eg078b_v2.vix
+
+### For applying the corrections
+AIPSnumber       = 1004
+AIPSdisk         = 1
+UV_dir           = /net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/Correct_model_multiple_pointings/PB_correction_5pc_blockage/Uniform_weighting_UV/
+IM_output_dir    = /net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/AK_primary_beams/IM/
+TASAV_output_dir = /net/10.0.6.249/volume1/data/radcliff/EG078B/MSSC_PBCOR/AK_primary_beams/TASAV/
+
+### For the imaging
+nchav = 32
+cell1 = 0.001
+imsize1 = 1024
